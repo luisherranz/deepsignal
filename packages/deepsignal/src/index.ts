@@ -33,7 +33,9 @@ type DeepSignal<T> = T extends Array<unknown>
 	: T;
 
 export const deepSignal = <T extends object>(obj: T): DeepSignal<T> => {
-	return new Proxy(obj, objectHandlers) as DeepSignal<T>;
+	if (!objToProxy.has(obj))
+		objToProxy.set(obj, new Proxy(obj, objectHandlers) as DeepSignal<T>);
+	return objToProxy.get(obj);
 };
 
 const get =

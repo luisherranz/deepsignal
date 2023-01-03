@@ -255,14 +255,25 @@ describe("deepsignal", () => {
 		expect(spy7).callCount(2);
 	});
 
-	it.skip("should preserve object references", () => {
-		// const nested = { b: 2 };
-		// const array = [3, nested];
-		// const obj = { a: 1, nested, array };
-		// const s1 = deepSignal(nested);
-		// const s2 = deepSignal(array);
-		// const s3 = deepSignal(obj);
-		// const spy1 = sinon.spy(() => s1.b);
-		// const spy2 = sinon.spy(() => s3.nested.b);
+	it("should preserve object references", () => {
+		const nested = { b: { c: 2 } };
+		const array = [3, nested];
+		const v = { a: 1, nested, array };
+
+		const s1 = deepSignal(nested);
+		const s2 = deepSignal(array);
+		const s3 = deepSignal(v);
+
+		expect(s3.nested).to.equal(s1);
+		expect(s3.nested.b).to.equal(s1.b);
+		expect(s3.array).to.equal(s2);
+		expect(s3.array[1]).to.equal(s2[1]);
+		expect(s3.array[1]).to.equal(s1);
+		expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
+
+		nested.b = { c: 3 };
+
+		expect(s3.nested.b).to.equal(s1.b);
+		expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
 	});
 });
