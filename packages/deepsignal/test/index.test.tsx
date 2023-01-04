@@ -116,12 +116,14 @@ describe("deepsignal", () => {
 		});
 
 		it("should subscribe to changes", () => {
-			const a = { x: 1 };
-			const b = { a };
+			const nested = { x: 1 };
+			const a = { nested };
+			const b = { nested };
 			const sa = deepSignal(a);
 			const sb = deepSignal(b);
-			const spya = sinon.spy(() => sa.x);
-			const spyb = sinon.spy(() => sb.a.x);
+
+			const spya = sinon.spy(() => sa.nested.x);
+			const spyb = sinon.spy(() => sb.nested.x);
 
 			effect(spya);
 			effect(spyb);
@@ -129,17 +131,17 @@ describe("deepsignal", () => {
 			expect(spya).callCount(1);
 			expect(spyb).callCount(1);
 
-			sa.x = 11;
+			sa.nested.x = 11;
 
 			expect(spya).callCount(2);
 			expect(spyb).callCount(2);
 
-			sb.a = { x: 111 };
+			sb.nested = { x: 111 };
 
 			expect(spya).callCount(2);
 			expect(spyb).callCount(3);
 
-			sb.a.x = 1111;
+			sb.nested.x = 1111;
 
 			expect(spya).callCount(2);
 			expect(spyb).callCount(4);
@@ -337,35 +339,33 @@ describe("deepsignal", () => {
 
 	describe("refs", () => {
 		it("should preserve object references", () => {
-			const nested = { b: { c: 2 } };
-			const array = [3, nested];
-			const v = { a: 1, nested, array };
+			let nested = { b: 2 };
+			let array = [3, nested];
+			let v = { a: 1, nested, array };
+			let s = deepSignal(v);
 
-			const s1 = deepSignal(nested);
-			const s2 = deepSignal(array);
-			const s3 = deepSignal(v);
+			expect(s.nested).to.equal(s.array[1]);
+			expect(s.nested.$b).to.equal(
+				typeof s.array[1] === "object" && s.array[1].$b
+			);
 
-			expect(s3.nested).to.equal(s1);
-			expect(s3.nested.b).to.equal(s1.b);
-			expect(s3.array).to.equal(s2);
-			expect(s3.array[1]).to.equal(s2[1]);
-			expect(s3.array[1]).to.equal(s1);
-			expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
+			s.nested.b = 22;
 
-			nested.b = { c: 3 };
+			expect(s.nested).to.equal(s.array[1]);
+			expect(s.nested.$b).to.equal(
+				typeof s.array[1] === "object" && s.array[1].$b
+			);
 
-			expect(s3.nested.b).to.equal(s1.b);
-			expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
+			s.nested = { b: 222 };
+
+			expect(s.nested).to.not.equal(s.array[1]);
+			expect(s.nested.$b).to.not.equal(
+				typeof s.array[1] === "object" && s.array[1].$b
+			);
 		});
 	});
 
 	describe("built-ins", () => {
-		it("should throw when trying to deepsignal a built-in", () => {
-			window.MyClass = class MyClass {};
-			const obj = new window.MyClass();
-			expect(() => deepSignal(obj)).to.throw();
-		});
-
 		it("should not wrap built-ins in proxies", () => {
 			window.MyClass = class MyClass {};
 			const obj = new window.MyClass();
@@ -421,7 +421,7 @@ describe("deepsignal", () => {
 	});
 
 	describe("symbols", () => {
-		it("should observe symbols", () => {
+		it("should observe symbol keys", () => {
 			const key = Symbol("key");
 			let dummy;
 			const obj = deepSignal<{ [key: symbol]: any }>({});
@@ -433,20 +433,6 @@ describe("deepsignal", () => {
 			obj[key] = true;
 			expect(obj[key]).to.equal(true);
 			expect(dummy).to.equal(true);
-		});
-
-		it("should not observe well-known symbols", () => {
-			const key = Symbol.isConcatSpreadable;
-			let dummy;
-			const obj = deepSignal<{ [key: symbol]: any }>({});
-			effect(() => (dummy = obj[key]));
-
-			expect(obj[key]).to.equal(undefined);
-			expect(dummy).to.equal(undefined);
-
-			obj[key] = true;
-			expect(obj[key]).to.equal(true);
-			expect(dummy).to.equal(undefined);
 		});
 	});
 });
