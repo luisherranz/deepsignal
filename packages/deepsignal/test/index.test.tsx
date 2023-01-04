@@ -1,5 +1,5 @@
 import { deepSignal } from "deepsignal";
-import { Signal, effect } from "@preact/signals-core";
+import { Signal, effect, computed } from "@preact/signals-core";
 
 describe("deepsignal", () => {
 	let nested = { b: 2 };
@@ -16,7 +16,7 @@ describe("deepsignal", () => {
 		store = deepSignal(state);
 	});
 
-	describe("get", () => {
+	describe("get - plain", () => {
 		it("should return plain objects/arrays", () => {
 			expect(store.nested).to.deep.equal({ b: 2 });
 			expect(store.array).to.deep.equal([3, { b: 2 }]);
@@ -33,6 +33,34 @@ describe("deepsignal", () => {
 			expect(store.array.length).to.equal(2);
 		});
 
+		it("should support reading from getters", () => {
+			const store = deepSignal({
+				counter: 1,
+				get double() {
+					return store.counter * 2;
+				},
+			});
+			expect(store.double).to.equal(2);
+			store.counter = 2;
+			expect(store.double).to.equal(4);
+		});
+
+		it("should support getters returning other parts of the state", () => {
+			const store = deepSignal({
+				switch: "a",
+				a: { data: "a" },
+				b: { data: "b" },
+				get aOrB() {
+					return store.switch === "a" ? store.a : store.b;
+				},
+			});
+			expect(store.aOrB.data).to.equal("a");
+			store.switch = "b";
+			expect(store.aOrB.data).to.equal("b");
+		});
+	});
+
+	describe("get - signals ($)", () => {
 		it("should return signal instance when using $prop", () => {
 			expect(store.$a).to.be.instanceOf(Signal);
 			expect(store.$a!.value).to.equal(1);
@@ -67,6 +95,32 @@ describe("deepsignal", () => {
 		it("should not return signals in arrays using $prop", () => {
 			expect((store.array as any).$0).to.be.undefined;
 		});
+
+		it("should support reading signals from getters", () => {
+			const store = deepSignal({
+				counter: 1,
+				get double() {
+					return store.counter * 2;
+				},
+			});
+			expect(store.$double!.value).to.equal(2);
+			store.counter = 2;
+			expect(store.$double!.value).to.equal(4);
+		});
+
+		it("should support reading signals from getters returning other parts of the state", () => {
+			const store = deepSignal({
+				switch: "a",
+				a: { data: "a" },
+				b: { data: "b" },
+				get aOrB() {
+					return store.switch === "a" ? store.a : store.b;
+				},
+			});
+			expect(store.aOrB.$data!.value).to.equal("a");
+			store.switch = "b";
+			expect(store.aOrB.$data!.value).to.equal("b");
+		});
 	});
 
 	describe("set", () => {
@@ -100,9 +154,23 @@ describe("deepsignal", () => {
 			store.a = 11;
 			expect(store.a).to.equal(11);
 		});
+
+		it("should support setting getters on the fly", () => {
+			const store = deepSignal<{ counter: number; double?: number }>({
+				counter: 1,
+			});
+			Object.defineProperty(store, "double", {
+				get: function () {
+					return store.counter * 2;
+				},
+			});
+			expect(store.double).to.equal(2);
+			store.counter = 2;
+			expect(store.double).to.equal(4);
+		});
 	});
 
-	describe("subscribe", () => {
+	describe("computations", () => {
 		it("should trigger effects after mutations happen", () => {
 			let x;
 			effect(() => {
@@ -111,6 +179,46 @@ describe("deepsignal", () => {
 			expect(x).to.equal(1);
 			store.a = 11;
 			expect(x).to.equal(11);
+		});
+
+		it("should trigger subscriptions after mutations happen", () => {
+			let x;
+			store.$a!.subscribe(() => {
+				x = store.a;
+			});
+			expect(x).to.equal(1);
+			store.a = 11;
+			expect(x).to.equal(11);
+		});
+
+		it("should subscribe corretcly from getters", () => {
+			let x;
+			const store = deepSignal({
+				counter: 1,
+				get double() {
+					return store.counter * 2;
+				},
+			});
+			effect(() => (x = store.double));
+			expect(x).to.equal(2);
+			store.counter = 2;
+			expect(x).to.equal(4);
+		});
+
+		it("should subscribe corretcly from getters returning other parts of the store", () => {
+			let data;
+			const store = deepSignal({
+				switch: "a",
+				a: { data: "a" },
+				b: { data: "b" },
+				get aOrB() {
+					return store.switch === "a" ? store.a : store.b;
+				},
+			});
+			effect(() => (data = store.aOrB.data));
+			expect(data).to.equal("a");
+			store.switch = "b";
+			expect(data).to.equal("b");
 		});
 
 		it("should subscribe to changes", () => {

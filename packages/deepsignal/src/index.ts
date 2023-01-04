@@ -1,4 +1,4 @@
-import { signal, Signal } from "@preact/signals-core";
+import { computed, signal, Signal } from "@preact/signals-core";
 
 const proxyToSignals = new WeakMap();
 const objToProxy = new WeakMap();
@@ -60,7 +60,12 @@ const get =
 					objToProxy.set(value, new Proxy(value, objectHandlers));
 				value = objToProxy.get(value);
 			}
-			signals.set(key, signal(value));
+			signals.set(
+				key,
+				typeof Object.getOwnPropertyDescriptor(target, key)?.get === "function"
+					? computed(() => Reflect.get(target, key, receiver))
+					: signal(value)
+			);
 		}
 		return returnSignal ? signals.get(key) : signals.get(key).value;
 	};
