@@ -17,7 +17,13 @@ describe("deepsignal", () => {
 	});
 
 	describe("get", () => {
-		it("should return like plain objects/arrays", () => {
+		it("should return plain objects/arrays", () => {
+			expect(s.nested).to.deep.equal({ b: 2 });
+			expect(s.array).to.deep.equal([3, { b: 2 }]);
+			expect(s.array[1]).to.deep.equal({ b: 2 });
+		});
+
+		it("should return plain primitives", () => {
 			expect(s.a).to.equal(1);
 			expect(s.nested.b).to.equal(2);
 			expect(s.array[0]).to.equal(3);
@@ -25,13 +31,16 @@ describe("deepsignal", () => {
 			expect(s.array.length).to.equal(2);
 		});
 
-		it("should return signal instance when using $", () => {
+		it("should return signal instance when using $prop", () => {
 			expect(s.$a).to.be.instanceOf(Signal);
 			expect(s.$a!.value).to.equal(1);
 			expect(s.$nested).to.be.instanceOf(Signal);
 			expect(s.$nested!.value.b).to.equal(2);
 			expect(s.nested.$b).to.be.instanceOf(Signal);
 			expect(s.nested.$b!.value).to.equal(2);
+		});
+
+		it("should return signal instance when accessing $[x] in arrays", () => {
 			expect(s.$array).to.be.instanceOf(Signal);
 			expect(s.$array!.value[0]).to.equal(3);
 			expect(s.array.$![0]).to.be.instanceOf(Signal);
@@ -46,11 +55,14 @@ describe("deepsignal", () => {
 			expect(typeof s.array[1] === "object" && s.array[1].$b!.value).to.equal(
 				2
 			);
+		});
+
+		it("should return length signal in arrays using $length", () => {
 			expect(s.array.$length).to.be.instanceOf(Signal);
 			expect(s.array.$length!.value).to.equal(2);
 		});
 
-		it("should not return signals in plain arrays using $prop", () => {
+		it("should not return signals in arrays using $prop", () => {
 			expect((s.array as any).$0).to.be.undefined;
 		});
 	});
@@ -323,26 +335,28 @@ describe("deepsignal", () => {
 		});
 	});
 
-	it("should preserve object references", () => {
-		const nested = { b: { c: 2 } };
-		const array = [3, nested];
-		const v = { a: 1, nested, array };
+	describe("refs", () => {
+		it("should preserve object references", () => {
+			const nested = { b: { c: 2 } };
+			const array = [3, nested];
+			const v = { a: 1, nested, array };
 
-		const s1 = deepSignal(nested);
-		const s2 = deepSignal(array);
-		const s3 = deepSignal(v);
+			const s1 = deepSignal(nested);
+			const s2 = deepSignal(array);
+			const s3 = deepSignal(v);
 
-		expect(s3.nested).to.equal(s1);
-		expect(s3.nested.b).to.equal(s1.b);
-		expect(s3.array).to.equal(s2);
-		expect(s3.array[1]).to.equal(s2[1]);
-		expect(s3.array[1]).to.equal(s1);
-		expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
+			expect(s3.nested).to.equal(s1);
+			expect(s3.nested.b).to.equal(s1.b);
+			expect(s3.array).to.equal(s2);
+			expect(s3.array[1]).to.equal(s2[1]);
+			expect(s3.array[1]).to.equal(s1);
+			expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
 
-		nested.b = { c: 3 };
+			nested.b = { c: 3 };
 
-		expect(s3.nested.b).to.equal(s1.b);
-		expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
+			expect(s3.nested.b).to.equal(s1.b);
+			expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
+		});
 	});
 
 	describe("built-ins", () => {
@@ -363,6 +377,46 @@ describe("deepsignal", () => {
 			const el = window.document.createElement("div");
 			const obs = deepSignal({ el });
 			expect(obs.el).to.equal(el);
+		});
+
+		it("should wrap global objects", () => {
+			window.obj = { b: 2 };
+			const obs = deepSignal(window.obj);
+			expect(obs).to.not.equal(window.obj);
+			expect(obs).to.deep.equal({ b: 2 });
+			expect(obs.$b).to.be.instanceOf(Signal);
+			expect(obs.$b.value).to.equal(2);
+		});
+
+		it("should not wrap Date", () => {
+			const date = new Date();
+			const obs = deepSignal({ date });
+			expect(obs.date).to.equal(date);
+		});
+
+		it("should not wrap RegExp", () => {
+			const regex = new RegExp("");
+			const obs = deepSignal({ regex });
+			expect(obs.regex).to.equal(regex);
+		});
+
+		it("should not wrap Maps", () => {
+			const map = new Map();
+			const obs = deepSignal({ map });
+			expect(obs.map).to.equal(map);
+		});
+
+		it("should not wrap Set", () => {
+			const set = new Set();
+			const obs = deepSignal({ set });
+			expect(obs.set).to.equal(set);
+		});
+
+		it("should not wrap built-ins in proxies", () => {
+			window.MyClass = class MyClass {};
+			const obj = new window.MyClass();
+			const obs = deepSignal({ obj });
+			expect(obs.obj).to.equal(obj);
 		});
 	});
 
