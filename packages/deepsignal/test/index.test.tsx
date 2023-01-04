@@ -7,6 +7,8 @@ describe("deepsignal", () => {
 	let v = { a: 1, nested, array };
 	let s = deepSignal(v);
 
+	const window = globalThis as any;
+
 	beforeEach(() => {
 		nested = { b: 2 };
 		array = [3, nested];
@@ -329,5 +331,56 @@ describe("deepsignal", () => {
 
 		expect(s3.nested.b).to.equal(s1.b);
 		expect(typeof s3.array[1] === "object" && s3.array[1].b).to.equal(s1.b);
+	});
+
+	describe("built-ins", () => {
+		it("should throw when trying to deepsignal a built-in", () => {
+			window.MyClass = class MyClass {};
+			const obj = new window.MyClass();
+			expect(() => deepSignal(obj)).to.throw();
+		});
+
+		it("should not wrap built-ins in proxies", () => {
+			window.MyClass = class MyClass {};
+			const obj = new window.MyClass();
+			const obs = deepSignal({ obj });
+			expect(obs.obj).to.equal(obj);
+		});
+
+		it("should not wrap elements in proxies", () => {
+			const el = window.document.createElement("div");
+			const obs = deepSignal({ el });
+			expect(obs.el).to.equal(el);
+		});
+	});
+
+	describe("symbols", () => {
+		it("should observe symbols", () => {
+			const key = Symbol("key");
+			let dummy;
+			const obj = deepSignal<{ [key: symbol]: any }>({});
+			effect(() => (dummy = obj[key]));
+
+			expect(obj[key]).to.equal(undefined);
+			expect(dummy).to.equal(undefined);
+
+			obj[key] = true;
+			expect(obj[key]).to.equal(true);
+			expect(dummy).to.equal(true);
+		});
+
+		it("should not observe well-known symbols", () => {
+			const key = Symbol.isConcatSpreadable;
+			let dummy;
+			const obj = deepSignal<{ [key: symbol]: any }>({});
+			effect(() => (dummy = obj[key]));
+
+			expect(obj[key]).to.equal(undefined);
+			expect(dummy).to.equal(undefined);
+
+			obj[key] = true;
+			expect(obj[key]).to.equal(true);
+			expect(dummy).to.equal(undefined);
+		});
 	});
 });
