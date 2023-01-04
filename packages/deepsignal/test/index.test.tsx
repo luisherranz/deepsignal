@@ -168,6 +168,17 @@ describe("deepsignal", () => {
 			store.counter = 2;
 			expect(store.double).to.equal(4);
 		});
+
+		it("should throw when mutating the $ properties", () => {
+			expect(() => ((store.nested as any).$b = 2)).to.throw();
+			expect(() => ((store.nested as any).$$b = 2)).to.throw();
+			expect(() => ((store.array as any).$length = 2)).to.throw();
+			expect(() => ((store.array as any).$$length = 2)).to.throw();
+		});
+
+		it("should throw when trying to mutate the signals array", () => {
+			expect(() => ((store.array.$ as any)[0] = 2)).to.throw();
+		});
 	});
 
 	describe("computations", () => {

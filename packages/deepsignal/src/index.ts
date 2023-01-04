@@ -81,9 +81,12 @@ const get =
 		return returnSignal ? signals.get(key) : signals.get(key).value;
 	};
 
+const mutationError = "Don't mutate the signals directly.";
+
 const objectHandlers = {
 	get: get(false),
 	set(target: object, key: string, val: any, receiver: object) {
+		if (key[0] === "$") throw new Error(mutationError);
 		let internal = val;
 		if (shouldProxy(val)) {
 			if (!objToProxy.has(val))
@@ -101,7 +104,12 @@ const objectHandlers = {
 	},
 };
 
-const arrayHandlers = { get: get(true) };
+const arrayHandlers = {
+	get: get(true),
+	set() {
+		throw new Error(mutationError);
+	},
+};
 
 type WellKnownSymbols =
 	| "asyncIterator"
