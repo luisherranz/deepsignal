@@ -436,6 +436,12 @@ describe("deepsignal", () => {
 	});
 
 	describe("built-ins", () => {
+		it("should throw when trying to deepsignal a built-in", () => {
+			window.MyClass = class MyClass {};
+			const obj = new window.MyClass();
+			expect(() => deepSignal(obj)).to.throw();
+		});
+
 		it("should not wrap built-ins in proxies", () => {
 			window.MyClass = class MyClass {};
 			const obj = new window.MyClass();
@@ -491,7 +497,7 @@ describe("deepsignal", () => {
 	});
 
 	describe("symbols", () => {
-		it("should observe symbol keys", () => {
+		it("should observe symbols", () => {
 			const key = Symbol("key");
 			let x;
 			const store = deepSignal<{ [key: symbol]: any }>({});
@@ -504,6 +510,20 @@ describe("deepsignal", () => {
 
 			expect(store[key]).to.equal(true);
 			expect(x).to.equal(true);
+		});
+
+		it("should not observe well-known symbols", () => {
+			const key = Symbol.isConcatSpreadable;
+			let x;
+			const state = deepSignal<{ [key: symbol]: any }>({});
+			effect(() => (x = state[key]));
+
+			expect(state[key]).to.equal(undefined);
+			expect(x).to.equal(undefined);
+
+			state[key] = true;
+			expect(state[key]).to.equal(true);
+			expect(x).to.equal(undefined);
 		});
 	});
 });

@@ -33,7 +33,10 @@ type DeepSignal<T> = T extends Array<unknown>
 	: T;
 
 export const deepSignal = <T extends object>(obj: T): DeepSignal<T> => {
-	return new Proxy(obj, objectHandlers) as DeepSignal<T>;
+	if (!shouldProxy(obj)) throw new Error("This object can't be observed.");
+	if (!objToProxy.has(obj))
+		objToProxy.set(obj, new Proxy(obj, objectHandlers) as DeepSignal<T>);
+	return objToProxy.get(obj);
 };
 
 const get =
@@ -64,6 +67,7 @@ const get =
 			);
 		} else {
 			let value = Reflect.get(target, key, receiver);
+			if (typeof key === "symbol" && wellKnownSymbols.has(key)) return value;
 			if (returnSignal && fullKey[1] === "$") return value;
 			if (!signals.has(key)) {
 				if (shouldProxy(value)) {
@@ -99,6 +103,26 @@ const objectHandlers = {
 
 const arrayHandlers = { get: get(true) };
 
+type WellKnownSymbols =
+	| "asyncIterator"
+	| "hasInstance"
+	| "isConcatSpreadable"
+	| "iterator"
+	| "match"
+	| "matchAll"
+	| "replace"
+	| "search"
+	| "species"
+	| "split"
+	| "toPrimitive"
+	| "toStringTag"
+	| "unscopables";
+
+const wellKnownSymbols = new Set(
+	Object.getOwnPropertyNames(Symbol)
+		.map(key => Symbol[key as WellKnownSymbols])
+		.filter(value => typeof value === "symbol")
+);
 const supported = new Set([Object, Array]);
 const shouldProxy = (val: any): boolean => {
 	if (typeof val !== "object" || val === null) return false;
