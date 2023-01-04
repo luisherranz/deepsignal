@@ -86,7 +86,57 @@ describe("deepsignal", () => {
 		expect((s.array as any).$0).to.be.undefined;
 	});
 
+	it("should update when mutations happen", () => {
+		const a = { x: 1 };
+		const sa = deepSignal(a);
+		expect(sa.x).to.equal(1);
+		sa.x = 11;
+		expect(sa.x).to.equal(11);
+	});
+
+	it("should trigger effects after mutations happen", () => {
+		const a = { x: 1 };
+		const sa = deepSignal(a);
+		let x;
+		effect(() => {
+			x = sa.x;
+		});
+		expect(x).to.equal(1);
+		sa.x = 11;
+		expect(x).to.equal(11);
+	});
+
 	it("should subscribe to changes", () => {
+		const a = { x: 1 };
+		const b = { a };
+		const sa = deepSignal(a);
+		const sb = deepSignal(b);
+		const spya = sinon.spy(() => sa.x);
+		const spyb = sinon.spy(() => sb.a.x);
+
+		effect(spya);
+		effect(spyb);
+
+		expect(spya).callCount(1);
+		expect(spyb).callCount(1);
+
+		sa.x = 11;
+
+		expect(spya).callCount(2);
+		expect(spyb).callCount(2);
+
+		sb.a = { x: 111 };
+
+		expect(spya).callCount(2);
+		expect(spyb).callCount(3);
+
+		sb.a.x = 1111;
+
+		expect(spya).callCount(2);
+		expect(spyb).callCount(4);
+	});
+
+	it("should subscribe to changes (2)", () => {
 		const spy1 = sinon.spy(() => s.a);
 		const spy2 = sinon.spy(() => s.nested);
 		const spy3 = sinon.spy(() => s.nested.b);
@@ -245,14 +295,18 @@ describe("deepsignal", () => {
 		expect(spy4).callCount(1);
 		expect(spy5).callCount(1);
 		expect(spy6).callCount(1);
+	});
 
-		const spy7 = sinon.spy(() => s.nested.$$b);
-		effect(spy7);
-		expect(spy7).callCount(1);
+	it("should subscribe to some changes but not other when peeking inside an object", () => {
+		const spy1 = sinon.spy(() => s.nested.$$b);
+		effect(spy1);
+		expect(spy1).callCount(1);
 		s.nested.b = 22;
-		expect(spy7).callCount(1);
+		expect(spy1).callCount(1);
 		s.nested = { b: 222 };
-		expect(spy7).callCount(2);
+		expect(spy1).callCount(2);
+		s.nested.b = 2222;
+		expect(spy1).callCount(2);
 	});
 
 	it("should preserve object references", () => {
