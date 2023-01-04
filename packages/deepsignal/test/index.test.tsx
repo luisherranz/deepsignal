@@ -257,10 +257,9 @@ describe("deepsignal", () => {
 			const spy2 = sinon.spy(() => store.$$nested);
 			const spy3 = sinon.spy(() => store.$$nested!.b);
 			const spy4 = sinon.spy(() => store.$$array![0]);
-			const spy5 = sinon.spy(() => {
-				const nested = store.array.$$![1];
-				if (typeof nested === "object") nested.b;
-			});
+			const spy5 = sinon.spy(
+				() => typeof store.array.$$![1] === "object" && store.array.$$![1].b
+			);
 			const spy6 = sinon.spy(() => store.array.$$length);
 
 			effect(spy1);

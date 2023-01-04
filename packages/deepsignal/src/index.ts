@@ -45,8 +45,9 @@ const get =
 				if (!arrayToArrayOfSignals.has(target))
 					arrayToArrayOfSignals.set(target, new Proxy(target, arrayHandlers));
 				return arrayToArrayOfSignals.get(target);
-			} else if (fullKey === "$$") return target;
-			else returnSignal = fullKey === "$length" || fullKey === "$$length";
+			}
+			if (fullKey === "$$") return target;
+			returnSignal = fullKey === "$length" || fullKey === "$$length";
 		}
 		const key = returnSignal ? fullKey.replace(rg, "") : fullKey;
 		let value = Reflect.get(target, key, receiver);
