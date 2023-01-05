@@ -5,9 +5,8 @@
 		"moduleResolution": "node",
 		"esModuleInterop": true,
 		"strict": true,
-		"jsx": "react",
-		"jsxFactory": "createElement",
-		"jsxFragmentFactory": "Fragment",
+		"jsx": "react-jsx",
+		"jsxImportSource": "preact",
 		"stripInternal": true,
 		"noUnusedLocals": true,
 		"paths": {
