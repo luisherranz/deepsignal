@@ -1,9 +1,8 @@
 import "@preact/signals";
 import { createElement, createRef, render } from "preact";
-import { useMemo } from "preact/hooks";
-import { setupRerender, act } from "preact/test-utils";
+import { setupRerender } from "preact/test-utils";
 import { Signal, effect } from "@preact/signals-core";
-import { deepSignal } from "deepsignal";
+import { deepSignal, useDeepSignal } from "deepsignal";
 
 const sleep = (ms?: number) => new Promise(r => setTimeout(r, ms));
 
@@ -681,6 +680,35 @@ describe("deepsignal", () => {
 			state.test = "bar";
 			rerender();
 			expect(spy).to.be.calledOnce;
+		});
+	});
+
+	describe("useDeepSignal", () => {
+		it("should return a deep signal that is internally stable", async () => {
+			const ref = createRef();
+			const spy = sinon.spy();
+			let state = deepSignal({ counter: 0 });
+
+			function App() {
+				spy();
+				state = useDeepSignal({ counter: 0 });
+				return <p ref={ref}>{state.counter}</p>;
+			}
+
+			render(<App />, scratch);
+
+			expect(scratch.textContent).to.equal("0");
+			expect(spy).to.be.calledOnce;
+			const stateAfterRender = state;
+
+			await sleep(1);
+
+			state.counter = 1;
+			rerender();
+
+			expect(scratch.textContent).to.equal("1");
+			expect(spy).to.be.calledTwice;
+			expect(stateAfterRender).to.equal(state);
 		});
 	});
 });
