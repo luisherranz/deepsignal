@@ -25,18 +25,19 @@
 			"import": "./dist/deepsignal.mjs",
 			"require": "./dist/deepsignal.js"
 		},
-		"./preact": {
-			"types": "./preact/dist/deepsignal-preact.d.ts",
-			"browser": "./preact/dist/deepsignal-preact.module.js",
-			"import": "./preact/dist/deepsignal-preact.mjs",
-			"require": "./preact/dist/deepsignal-preact.js"
+		"./core": {
+			"types": "./preact/dist/deepsignal-core.d.ts",
+			"browser": "./preact/dist/deepsignal-core.module.js",
+			"import": "./preact/dist/deepsignal-core.mjs",
+			"require": "./preact/dist/deepsignal-core.js"
 		}
 	},
 	"scripts": {
 		"prepublishOnly": "cp ../../README.md . && cd ../.. && pnpm build"
 	},
 	"dependencies": {
-		"@preact/signals-core": "^1.2.3"
+		"@preact/signals-core": "^1.0.0",
+		"@preact/signals": "^1.0.0"
 	},
 	"peerDependencies": {
 		"preact": "10.x"

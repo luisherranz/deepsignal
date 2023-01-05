@@ -60,7 +60,7 @@ function createEsbuildPlugin() {
 
 	const alias = {
 		deepsignal: subPkgPath("./packages/deepsignal"),
-		["deepsignal/preact"]: subPkgPath("./packages/deepsignal/preact"),
+		"deepsignal/core": subPkgPath("./packages/deepsignal/core"),
 	};
 
 	return {
