@@ -28,10 +28,12 @@ It works by wrapping the object with a `Proxy` that intercepts all property acce
 - **Tiny (less than 1Kb)**: `deepsignal` is designed to be lightweight and has a minimal footprint, making it easy to include in your projects. It's just a small wrapper around `@preact/signals-core`.
 - **Full array support**: `deepsignal` fully supports arrays, including nested arrays.
 - **Deep**: `deepsignal` converts nested objects and arrays to deep signal objects/arrays, allowing you to create fully reactive data structures.
-- **Lazy initialization**: `deepsignal` uses lazy initialization, which means that signals are only created when they are accessed for the first time. This reduces the initialization time to almost zero and improves the overall performance in cases where you only need to observe a small subset of the object's properties.
+- **Lazy initialization**: `deepsignal` uses lazy initialization, which means that signals and proxies are only created when they are accessed for the first time. This reduces the initialization time to almost zero and improves the overall performance in cases where you only need to observe a small subset of the object's properties.
 - **Stable references**: `deepsignal` uses stable references, which means that the same `Proxy` instances will be returned for the same objects so they can exist in different places of the data structure, just like regular JavaScript objects.
 - **Automatic derived state**: getters are automatically converted to computeds instead of signals.
 - **TypeScript support**: `deepsignal` is written in TypeScript and includes type definitions, so you can use it seamlessly with your TypeScript projects, including access to the signal and the peek value through the prefixes `state.$prop` and `state.$$prop`.
+
+The most important feature is that **it just works**. You don't need to do anything special. Just create an object, mutate it normally and all your components will know when they need to rerender.
 
 ## Installation
 
@@ -120,25 +122,33 @@ import { deepSignal } from "deepsignal";
 
 const state = deepSignal({ counter: 0 });
 
-// Read value from signal, logs: 0.
+// Reads the value, logs: 0.
 console.log(state.counter);
 
 // Mutates the underlying signal.
 state.counter = 1;
+
+// Reads the value, logs: 1.
+console.log(state.counter);
 ```
 
-Writing to a signal is done by mutating the object's properties. Changing a property's value will synchronously update every `computed` and `effect` that depends on its signal, ensuring your app state is always consistent.
+Writing to a signal is done by mutating the object's properties. Changing a property's value will synchronously update every component and `effect` that depends on its signal, ensuring your app state is always consistent.
 
 ```js
 const state = deepSignal({ counter: 0 });
 
-// Runs the first time, reads value from signal, logs: 0.
+// Runs the first time, reads the value and outputs: <div>0</div>
+const Counter = () => <div>{state.counter}</div>;
+
+// Runs the first time, reads the value and logs: 0.
 effect(() => {
 	console.log(state.counter);
 });
 
-// Mutates the underlying signal. The effect runs again, logs: 1.
+// Mutates the underlying signal.
 state.counter = 1;
+// The effect runs again, logs: 1.
+// The component renders again, outputs: <div>1</div>.
 ```
 
 ### `get prop() { ... }`
@@ -158,7 +168,7 @@ effect(() => {
 	console.log(state.double);
 });
 
-// Mutates the underlying dependency. The effect runs again, logs: 4.
+// Mutates the dependency. The effect runs again, logs: 4.
 state.counter = 2;
 ```
 
@@ -259,7 +269,7 @@ function Counter() {
 
 ## When do you need access to signals?
 
-Chances are you will rarely need access to the underlying signals except for some performance optimizations.
+You will only need access to the underlying signals for performance optimizations.
 
 ### Passing the value of a signal directly to JSX
 
@@ -275,7 +285,7 @@ const Component = () => <div>{state.counter}</div>;
 state.counter = 1;
 ```
 
-We can pass the signal directly to JSX to mutate the DOM directly and bypass the `Component` rerenders:
+We can pass the signal directly to JSX and Preact will mutate the DOM instead of rerendering `Component`:
 
 ```js
 const state = deepSignal({ counter: 0 });
@@ -289,7 +299,7 @@ state.counter = 1;
 
 ### Passing a signal to a child component
 
-This works fine, but `Parent` will render each time `state.counter` changes.
+This also works fine, but `Parent` will render each time `state.counter` changes.
 
 ```js
 const state = deepSignal({ counter: 0 });
@@ -325,14 +335,14 @@ For example, consider the following code:
 
 ```js
 const state = deepSignal({
-  prop: "foo"
+  counter: 1
 });
 
-console.log(state.$prop.value); // error: Object is possibly 'undefined'.
-console.log(state.$prop!.value); // "foo"
+console.log(state.$counter.value); // error: Object is possibly 'undefined'.
+console.log(state.$counter!.value); // 1
 ```
 
-If we try to access the `value` property of the `$prop` signal, TypeScript will error because it does not know that the `$prop` signal is defined.
+If we try to access the `value` property of the `$counter` signal, TypeScript will error because it does not know that the `$counter` signal is defined.
 
 The same happens with arrays:
 
@@ -340,10 +350,10 @@ The same happens with arrays:
 const array = deepSignal([1]);
 
 console.log(array.$[0].value); // error: Object is possibly 'undefined'.
-console.log(array.$![0].value); // "foo"
+console.log(array.$![0].value); // 1
 ```
 
-Note that here the position of the non-null assertion operator changes because `array.$` is an object.
+Note that here the position of the non-null assertion operator changes because `array.$` is an object in itself.
 
 ## License
 
