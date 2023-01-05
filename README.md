@@ -361,4 +361,4 @@ Note that here the position of the non-null assertion operator changes because `
 
 ---
 
-_This library is hugely inspired by the work of @solkimicreb with proxies and lazy initialization on [`@nx-js/observer-util`](https://github.com/nx-js/observer-util)._
+_This library is hugely inspired by the work of [@solkimicreb](https://github.com/solkimicreb) with proxies and lazy initialization on [`@nx-js/observer-util`](https://github.com/nx-js/observer-util)._
