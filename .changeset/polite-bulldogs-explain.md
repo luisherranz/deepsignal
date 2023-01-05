@@ -1,5 +1,0 @@
----
-"deepsignal": major
----
-
-Initial version.
