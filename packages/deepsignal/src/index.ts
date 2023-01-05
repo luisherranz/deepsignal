@@ -1,3 +1,4 @@
+import { useMemo } from "preact/hooks";
 import { computed, signal, Signal } from "@preact/signals-core";
 
 const proxyToSignals = new WeakMap();
@@ -26,7 +27,7 @@ type DeepSignalArray<T> = Array<ArrayType<T>> & {
 	$$length?: number;
 };
 
-type DeepSignal<T> = T extends Array<unknown>
+export type DeepSignal<T> = T extends Array<unknown>
 	? DeepSignalArray<T>
 	: T extends object
 	? DeepSignalObject<T>
@@ -140,3 +141,7 @@ const shouldProxy = (val: any): boolean => {
 		(globalThis as any)[val.constructor.name] === val.constructor;
 	return !isBuiltIn || supported.has(val.constructor);
 };
+
+export function useDeepSignal<T extends object>(value: T) {
+	return useMemo(() => deepSignal<T>(value), []);
+}
