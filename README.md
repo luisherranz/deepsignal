@@ -1,26 +1,11 @@
-# Signals
+# deepsignal
 
-Signals is a performant state management library with two primary goals:
+`deepsignal` is a npm package that allows you to use Preact signals in a plain JavaScript object that can be mutated.
 
-1. Make it as easy as possible to write business logic for small up to complex apps. No matter how complex your logic is, your app updates should stay fast without you needing to think about it. Signals automatically optimize state updates behind the scenes to trigger the fewest updates necessary. They are lazy by default and automatically skip signals that no one listens to.
-2. Integrate into frameworks as if they were native built-in primitives. You don't need any selectors, wrapper functions, or anything else. Signals can be accessed directly and your component will automatically re-render when the signal's value changes.
+It works by wrapping the object with a `Proxy`, which intercepts all property accesses and returns the signal value by default. This allows you to easily create a deep object that can be observed for changes, while still being able to mutate the object normally. Nested objects and arrays are also converted to deep signal objects/arrays, allowing you to create a fully reactive data structure. Prefixes can be used to return the signal instance (`state.$prop`) or to peek (`state.$$prop`).
 
-Read the [announcement post](https://preactjs.com/blog/introducing-signals/) to learn more about which problems signals solves and how it came to be.
-
-## Installation:
-
-```sh
-# Just the core library
-npm install @preact/signals-core
-# If you're using Preact
-npm install @preact/signals
-# If you're using React
-npm install @preact/signals-react
-# If you're using Svelte
-npm install @preact/signals-core
-```
-
-- [Guide / API](#guide--api)
+- [Installation](#installation)
+- [API](#guide)
   - [`signal(initialValue)`](#signalinitialvalue)
     - [`signal.peek()`](#signalpeek)
   - [`computed(fn)`](#computedfn)
@@ -34,46 +19,156 @@ npm install @preact/signals-core
   - [Hooks](./packages/react/README.md#hooks)
 - [License](#license)
 
-## Guide / API
+## Features
 
-The signals library exposes four functions which are the building blocks to model any business logic you can think of.
+- **Transparent**: `deepsignal` wraps the objects with proxies, which intercepts all property accesses, but does not modify the object. This means that you can still use the object as you normally would, and it will behave exactly as expected. Mutating the object updates the value of the underlying signals.
+- **Tiny (less than 1Kb)**: `deepsignal` is designed to be lightweight and has a minimal footprint, making it easy to include in your projects. It's just a wrapper around `@preact/signals-core`.
+- **TypeScript support**: `deepsignal` is written in TypeScript and includes type definitions, so you can use it seamlessly with your TypeScript projects, including access to the signal and peek through the prefixes `state.$prop` and `state.$$prop`.
+- **Full array support**: `deepsignal` fully supports arrays, including nested arrays. You can use `state.$[index]` prefix to get a signal for an array element, or the `state.$$[index]` prefix to peek the current value.
+- **Deep**: `deepsignal` converts nested objects and arrays to deep signal objects/arrays, allowing you to create fully reactive data structures.
+- **Lazy initialization**: `deepsignal` uses lazy initialization, which means that signals are only created when they are accessed for the first time. This can help improve performance in cases where you only need to observe a small subset of the object's properties.
+- **Stable references**: `deepsignal` uses stable references, which means that the same `Proxy` instances will be returned for the same objects so they can exist in different places of the data structure, just like regular JavaScript objects.
+- **Automatic derived state**:
 
-### `signal(initialValue)`
+## Installation:
 
-The `signal` function creates a new signal. A signal is a container for a value that can change over time. You can read a signal's value or subscribe to value updates by accessing its `.value` property.
-
-```js
-import { signal } from "@preact/signals-core";
-
-const counter = signal(0);
-
-// Read value from signal, logs: 0
-console.log(counter.value);
-
-// Write to a signal
-counter.value = 1;
+```sh
+npm install deepsignal
 ```
 
-Writing to a signal is done by setting its `.value` property. Changing a signal's value synchronously updates every [computed](#computedfn) and [effect](#effectfn) that depends on that signal, ensuring your app state is always consistent.
+## API
 
-#### `signal.peek()`
+### `deepSignal`
 
-In the rare instance that you have an effect that should write to another signal based on the previous value, but you _don't_ want the effect to be subscribed to that signal, you can read a signals's previous value via `signal.peek()`.
+```ts
+deepSignal<T extends object>(obj: T): DeepSignal<T>;
+```
+
+The `deepSignal` function creates a new deep signal. You can read or mutate the underlying signal values by accessing the object's properties just like you would in a regular JavaScript object.
 
 ```js
-const counter = signal(0);
-const effectCount = signal(0);
+import { deepSignal } from "deepsignal";
+
+const state = deepSignal({ counter: 0 });
+
+// Read value from signal, logs: 0.
+console.log(state.counter);
+
+// Mutates the underlying signal.
+state.counter = 1;
+```
+
+Writing to a signal is done by mutating the object's properties. Changing a signal's value will synchronously update every `computed` and `effect` that depends on that signal, ensuring your app state is always consistent.
+
+```js
+const state = deepSignal({ counter: 0 });
+
+// Runs the first time, reads value from signal, logs: 0.
+effect(() => {
+	console.log(state.counter);
+});
+
+// Mutates the underlying signal. The effect runs again, logs: 1.
+state.counter = 1;
+```
+
+## When do you need access to signals?
+
+Chances are you will rarely need access to the underlying signals except for some performance optimizations.
+
+### Passing the value of a signal directly to JSX
+
+This works fine but `Component` renders each time `state.counter` changes.
+
+```js
+const state = deepSignal({ counter: 0 });
+
+// Reads value from signal, outputs: <div>0</div>
+const Component = () => <div>{state.counter}</div>;
+
+// Mutates the underlying signal. The component is rerender again and outputs: <div>1</div>
+state.counter = 1;
+```
+
+We can pass the signal directly to JSX to mutate the DOM directly and bypass the `Component` rerenders:
+
+```js
+const state = deepSignal({ counter: 0 });
+
+// Reads value from signal, outputs: <div>0</div>
+const Component = () => <div>{state.$counter}</div>;
+
+// Mutates the underlying signal. The DOM is mutated to: <div>1</div>
+state.counter = 1;
+```
+
+### `state.$prop`
+
+You can access the underlying signal of an object's property by using the `$` prefix, like so: `state.$prop`.
+
+```js
+const state = deepSignal({ counter: 0 });
+
+// Runs the first time, read value from signal, logs: 0.
+state.$counter.subscribe(console.log);
+
+// Mutates the underlying signal. The subscription runs again, logs: 1.
+state.counter = 1;
+```
+
+### `array.$[index]`
+
+You can access the underlying signal of an array's item by using the `$` prefix, like so: `state.$[index]`.
+
+```js
+const array = deepSignal([0]);
+
+// Runs the first time, read value from signal, logs: 0.
+array.$[0].subscribe(console.log);
+
+// Mutates the underlying signal. The subscription runs again, logs: 1.
+array[0] = 1;
+```
+
+_Please note that although the syntax is similar, there's a difference between objects and arrays. In objects, each prop has a signal counterpart (`state.prop` -> `state.$prop`) whereas in arrays, the `array.$` prop returns a new array of signals, therefore the difference between `array[index]` and `array.$[index]`._
+
+### `array.$length`
+
+Arrays can access the length signal with a property called `array.$length` in the same way that objects have access to `state.$prop`.
+
+```js
+const array = deepSignal([0]);
+
+// Runs the first time, logs: 1.
+array.$length.subscribe(console.log);
+
+// Mutates the array. The subscription runs again, logs: 2.
+array.push(1);
+```
+
+## Peek the underlying JavaScript object with $$
+
+Chances are you will rarely need access to the underlying JavaScript object except when you have an effect that should write to another signal based on the previous value, but you _don't_ want the effect to be subscribed to that signal.
+
+```js
+const state = deepSignal({ value: 0, effectCount: 0 });
 
 effect(() => {
-	console.log(counter.value);
+	console.log(state.value);
 
-	// Whenever this effect is triggered, increase `effectCount`.
-	// But we don't want this signal to react to `effectCount`
-	effectCount.value = effectCount.peek() + 1;
+	// Whenever this effect is triggered, increase `effectCount`, but we don't
+	// want this effect to react to `effectCount`.
+	state.effectCount = state.$$effectCount + 1;
 });
 ```
 
-Note that you should only use `signal.peek()` if you really need it. Reading a signal's value via `signal.value` is the preferred way in most scenarios.
+Note that you should only use `state.$$prop` if you really need it. Reading a signal's value via `state.prop` is the preferred way in most scenarios.
+
+The `$$` prefixes follow the same rules as the `$` ones:
+
+- Peek an object property with `state.$$prop`.
+- Peek an array item with `array.$$[index]`.
+- Peek an array length with `array.$$length`.
 
 ### `computed(fn)`
 

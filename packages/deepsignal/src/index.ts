@@ -1,4 +1,3 @@
-import { useMemo } from "preact/hooks";
 import { computed, signal, Signal } from "@preact/signals-core";
 
 const proxyToSignals = new WeakMap();
@@ -141,7 +140,3 @@ const shouldProxy = (val: any): boolean => {
 		(globalThis as any)[val.constructor.name] === val.constructor;
 	return !isBuiltIn || supported.has(val.constructor);
 };
-
-export function useDeepSignal<T extends object>(value: T) {
-	return useMemo(() => deepSignal<T>(value), []);
-}

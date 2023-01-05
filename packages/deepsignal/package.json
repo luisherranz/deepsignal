@@ -22,13 +22,18 @@
 		".": {
 			"types": "./dist/deepsignal.d.ts",
 			"browser": "./dist/deepsignal.module.js",
-			"umd": "./dist/deepsignal.umd.js",
 			"import": "./dist/deepsignal.mjs",
 			"require": "./dist/deepsignal.js"
+		},
+		"./preact": {
+			"types": "./preact/dist/deepsignal-preact.d.ts",
+			"browser": "./preact/dist/deepsignal-preact.module.js",
+			"import": "./preact/dist/deepsignal-preact.mjs",
+			"require": "./preact/dist/deepsignal-preact.js"
 		}
 	},
 	"scripts": {
-		"prepublishOnly": "cp ../../README.md . && cd ../.. && pnpm build:deepsignal"
+		"prepublishOnly": "cp ../../README.md . && cd ../.. && pnpm build"
 	},
 	"dependencies": {
 		"@preact/signals-core": "^1.2.3"

@@ -1,0 +1,27 @@
+{
+	"name": "deepsignal-preact",
+	"amdName": "deepSignalPreact",
+	"version": "1.0.0",
+	"private": true,
+	"main": "dist/deepsignal-preact.js",
+	"module": "dist/deepsignal-preact.module.js",
+	"unpkg": "dist/deepsignal-preact.min.js",
+	"types": "dist/deepsignal-preact.d.ts",
+	"source": "src/index.ts",
+	"license": "MIT",
+	"dependencies": {
+		"@preact/signals-core": "^1.0.0",
+		"@preact/signals": "^1.0.0"
+	},
+	"peerDependencies": {
+		"preact": "^10.0.0"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/deepsignal-preact.d.ts",
+			"browser": "./dist/deepsignal-preact.module.js",
+			"import": "./dist/deepsignal-preact.mjs",
+			"require": "./dist/deepsignal-preact.js"
+		}
+	}
+}
