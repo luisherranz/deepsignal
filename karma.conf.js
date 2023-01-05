@@ -59,9 +59,8 @@ function createEsbuildPlugin() {
 	}
 
 	const alias = {
-		"@preact/signals-core": subPkgPath("./packages/core"),
-		"@preact/signals": subPkgPath("./packages/preact"),
-		"@preact/signals-react": subPkgPath("./packages/react"),
+		deepsignal: subPkgPath("./packages/deepsignal"),
+		"deepsignal/core": subPkgPath("./packages/deepsignal/core"),
 	};
 
 	return {
@@ -254,7 +253,8 @@ module.exports = function (config) {
 
 		files: [
 			{
-				pattern: process.env.TESTS || "packages/*/test/**/*.test.tsx",
+				pattern:
+					process.env.TESTS || "packages/*/!(node_modules)/**/*.test.tsx",
 				watched: false,
 				type: "js",
 			},
@@ -265,7 +265,7 @@ module.exports = function (config) {
 		},
 
 		preprocessors: {
-			"packages/*/test/**/*": ["esbuild"],
+			"packages/*/!(node_modules)/**/*.test.tsx": ["esbuild"],
 		},
 
 		plugins: [

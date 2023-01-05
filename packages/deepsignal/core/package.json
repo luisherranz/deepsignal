@@ -1,0 +1,25 @@
+{
+	"name": "deepsignal-core",
+	"version": "1.0.0",
+	"private": true,
+	"main": "dist/deepsignal-core.js",
+	"module": "dist/deepsignal-core.module.js",
+	"unpkg": "dist/deepsignal-core.min.js",
+	"types": "dist/deepsignal-core.d.ts",
+	"source": "src/index.ts",
+	"license": "MIT",
+	"dependencies": {
+		"@preact/signals-core": "^1.0.0"
+	},
+	"peerDependencies": {
+		"preact": "^10.0.0"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/deepsignal-core.d.ts",
+			"browser": "./dist/deepsignal-core.module.js",
+			"import": "./dist/deepsignal-core.mjs",
+			"require": "./dist/deepsignal-core.js"
+		}
+	}
+}
