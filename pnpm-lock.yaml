@@ -96,12 +96,14 @@ importers:
 
   packages/deepsignal:
     specifiers:
+      '@preact/signals': 1.1.3
       '@preact/signals-core': ^1.2.3
       preact: 10.9.0
       preact-render-to-string: ^5.2.4
     dependencies:
       '@preact/signals-core': 1.2.3
     devDependencies:
+      '@preact/signals': 1.1.3_preact@10.9.0
       preact: 10.9.0
       preact-render-to-string: 5.2.6_preact@10.9.0
 
@@ -1837,7 +1839,15 @@ packages:
 
   /@preact/signals-core/1.2.3:
     resolution: {integrity: sha512-Kui4p7PMcEQevBgsTO0JBo3gyQ88Q3qzEvsVCuSp11t0JcN4DmGCTJcGRVSCq7Bn7lGxJBO+57jNSzDoDJ+QmA==}
-    dev: false
+
+  /@preact/signals/1.1.3_preact@10.9.0:
+    resolution: {integrity: sha512-N09DuAVvc90bBZVRwD+aFhtGyHAmJLhS3IFoawO/bYJRcil4k83nBOchpCEoS0s5+BXBpahgp0Mjf+IOqP57Og==}
+    peerDependencies:
+      preact: 10.x
+    dependencies:
+      '@preact/signals-core': 1.2.3
+      preact: 10.9.0
+    dev: true
 
   /@rollup/plugin-alias/3.1.9_rollup@2.77.2:
     resolution: {integrity: sha512-QI5fsEvm9bDzt32k39wpOwZhVzRcL5ydcffUHMyLVaVaLeC70I8TJZ17F1z1eMoLu4E/UOcH9BWVkKpIKdrfiw==}

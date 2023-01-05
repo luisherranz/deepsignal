@@ -38,6 +38,7 @@
 	},
 	"devDependencies": {
 		"preact": "10.9.0",
-		"preact-render-to-string": "^5.2.4"
+		"preact-render-to-string": "^5.2.4",
+		"@preact/signals": "1.1.3"
 	}
 }
