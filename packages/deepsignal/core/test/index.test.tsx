@@ -1,5 +1,5 @@
 import { Signal, effect } from "@preact/signals-core";
-import { deepSignal } from "deepsignal/core";
+import { deepSignal, peek } from "deepsignal/core";
 
 describe("deepsignal/core", () => {
 	let nested = { b: 2 };
@@ -171,9 +171,7 @@ describe("deepsignal/core", () => {
 
 		it("should throw when mutating the $ properties", () => {
 			expect(() => ((store.nested as any).$b = 2)).to.throw();
-			expect(() => ((store.nested as any).$$b = 2)).to.throw();
 			expect(() => ((store.array as any).$length = 2)).to.throw();
-			expect(() => ((store.array as any).$$length = 2)).to.throw();
 		});
 
 		it("should throw when trying to mutate the signals array", () => {
@@ -355,31 +353,25 @@ describe("deepsignal/core", () => {
 	});
 
 	describe("peek", () => {
-		it("should return peek when using $$", () => {
-			expect(store.$$a).to.equal(1);
-			expect(store.$$nested!.b).to.equal(2);
-			expect(store.nested.$$b).to.equal(2);
-			expect(store.$$array![0]).to.equal(3);
-			expect(store.array.$$![0]).to.equal(3);
-			expect(
-				typeof store.$$array![1] === "object" && store.$$array![1].b
-			).to.equal(2);
-			expect(
-				typeof store.array.$$![1] === "object" && store.array.$$![1].b
-			).to.equal(2);
-			expect(store.$$array!.length).to.equal(2);
-			expect(store.array.$$length).to.equal(2);
+		it("should return correct values when using peek()", () => {
+			expect(peek(store, "a")).to.equal(1);
+			expect(peek(store.nested, "b")).to.equal(2);
+			expect(peek(store.array, 0)).to.equal(3);
+			const nested = peek(store, "array")[1];
+			expect(typeof nested === "object" && nested.b).to.equal(2);
+			expect(peek(store.array, "length")).to.equal(2);
 		});
 
 		it("should not subscribe to changes when peeking", () => {
-			const spy1 = sinon.spy(() => store.$$a);
-			const spy2 = sinon.spy(() => store.$$nested);
-			const spy3 = sinon.spy(() => store.$$nested!.b);
-			const spy4 = sinon.spy(() => store.$$array![0]);
-			const spy5 = sinon.spy(
-				() => typeof store.array.$$![1] === "object" && store.array.$$![1].b
-			);
-			const spy6 = sinon.spy(() => store.array.$$length);
+			const spy1 = sinon.spy(() => peek(store, "a"));
+			const spy2 = sinon.spy(() => peek(store, "nested"));
+			const spy3 = sinon.spy(() => peek(store, "nested").b);
+			const spy4 = sinon.spy(() => peek(store, "array")[0]);
+			const spy5 = sinon.spy(() => {
+				const nested = peek(store, "array")[1];
+				typeof nested === "object" && nested.b;
+			});
+			const spy6 = sinon.spy(() => peek(store, "array").length);
 
 			effect(spy1);
 			effect(spy2);
@@ -411,7 +403,7 @@ describe("deepsignal/core", () => {
 		});
 
 		it("should subscribe to some changes but not other when peeking inside an object", () => {
-			const spy1 = sinon.spy(() => store.nested.$$b);
+			const spy1 = sinon.spy(() => peek(store.nested, "b"));
 			effect(spy1);
 			expect(spy1).callCount(1);
 			store.nested.b = 22;
@@ -429,9 +421,9 @@ describe("deepsignal/core", () => {
 					return store.counter * 2;
 				},
 			});
-			expect(store.$$double).to.equal(2);
+			expect(peek(store, "double")).to.equal(2);
 			store.counter = 2;
-			expect(store.$$double).to.equal(4);
+			expect(peek(store, "double")).to.equal(4);
 		});
 	});
 
