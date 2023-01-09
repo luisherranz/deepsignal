@@ -16,8 +16,107 @@ type DeepSignalObject<T extends object> = {
 		: T[P];
 };
 
+// @ts-expect-error
+interface MyArray<T> extends Array<T> {
+	map: <U>(
+		callbackfn: (
+			value: DeepSignal<T>,
+			index: number,
+			array: DeepSignalArray<T[]>
+		) => U,
+		thisArg?: any
+	) => U[];
+	forEach: (
+		callbackfn: (
+			value: DeepSignal<T>,
+			index: number,
+			array: DeepSignalArray<T[]>
+		) => void,
+		thisArg?: any
+	) => void;
+	concat(...items: ConcatArray<T>[]): DeepSignalArray<T[]>;
+	concat(...items: (T | ConcatArray<T>)[]): DeepSignalArray<T[]>;
+	reverse(): DeepSignalArray<T[]>;
+	shift(): DeepSignal<T> | undefined;
+	slice(start?: number, end?: number): DeepSignalArray<T[]>;
+	splice(start: number, deleteCount?: number): DeepSignalArray<T[]>;
+	splice(
+		start: number,
+		deleteCount: number,
+		...items: T[]
+	): DeepSignalArray<T[]>;
+	filter<S extends T>(
+		predicate: (
+			value: DeepSignal<T>,
+			index: number,
+			array: DeepSignalArray<T[]>
+		) => value is DeepSignal<S>,
+		thisArg?: any
+	): DeepSignalArray<S[]>;
+	filter(
+		predicate: (
+			value: DeepSignal<T>,
+			index: number,
+			array: DeepSignalArray<T[]>
+		) => unknown,
+		thisArg?: any
+	): DeepSignalArray<T[]>;
+	reduce(
+		callbackfn: (
+			previousValue: DeepSignal<T>,
+			currentValue: DeepSignal<T>,
+			currentIndex: number,
+			array: DeepSignalArray<T[]>
+		) => T
+	): DeepSignal<T>;
+	reduce(
+		callbackfn: (
+			previousValue: DeepSignal<T>,
+			currentValue: DeepSignal<T>,
+			currentIndex: number,
+			array: DeepSignalArray<T[]>
+		) => DeepSignal<T>,
+		initialValue: T
+	): DeepSignal<T>;
+	reduce<U>(
+		callbackfn: (
+			previousValue: U,
+			currentValue: DeepSignal<T>,
+			currentIndex: number,
+			array: DeepSignalArray<T[]>
+		) => U,
+		initialValue: U
+	): U;
+	reduceRight(
+		callbackfn: (
+			previousValue: DeepSignal<T>,
+			currentValue: DeepSignal<T>,
+			currentIndex: number,
+			array: DeepSignalArray<T[]>
+		) => T
+	): DeepSignal<T>;
+	reduceRight(
+		callbackfn: (
+			// previousValue: DeepSignal<T>, // Fail on purpose to test GH action
+			previousValue: T,
+			currentValue: DeepSignal<T>,
+			currentIndex: number,
+			array: DeepSignalArray<T[]>
+		) => DeepSignal<T>,
+		initialValue: T
+	): DeepSignal<T>;
+	reduceRight<U>(
+		callbackfn: (
+			previousValue: U,
+			currentValue: DeepSignal<T>,
+			currentIndex: number,
+			array: DeepSignalArray<T[]>
+		) => U,
+		initialValue: U
+	): U;
+}
 type ArrayType<T> = T extends Array<infer I> ? I : T;
-type DeepSignalArray<T> = Array<ArrayType<T>> & {
+type DeepSignalArray<T> = MyArray<ArrayType<T>> & {
 	[key: number]: DeepSignal<ArrayType<T>>;
 	$?: { [key: number]: Signal<ArrayType<T>> };
 	$length?: Signal<number>;
