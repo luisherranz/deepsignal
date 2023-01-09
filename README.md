@@ -2,21 +2,21 @@
 
 `deepsignal` is a package that allows you to use Preact signals in a plain JavaScript object that can be mutated.
 
-It works by wrapping the object with a `Proxy` that intercepts all property accesses and returns the signal value by default. This allows you to easily create a deep object that can be observed for changes, while still being able to mutate the object normally. Nested objects and arrays are also converted to deep signal objects/arrays, allowing you to create a fully reactive data structure. Prefixes can be used to return the signal instance (`state.$prop`) or to peek the value (`state.$$prop`).
+It works by wrapping the object with a `Proxy` that intercepts all property accesses and returns the signal value by default. This allows you to easily create a deep object that can be observed for changes, while still being able to mutate the object normally. Nested objects and arrays are also converted to deep signal objects/arrays, allowing you to create a fully reactive data structure. A prefix can be used to return the signal instance: `state.$prop`.
 
 - [DeepSignal](#deepsignal)
   - [Features](#features)
   - [Installation](#installation)
   - [Usage](#usage)
   - [API](#api)
-    - [`deepSignal`](#-deepsignal-)
-    - [`get prop() { ... }`](#-get-prop--------)
-    - [`state.$prop`](#-state-prop-)
-    - [`array.$[index]`](#-array--index--)
-    - [`array.$length`](#-array-length-)
-    - [`state.$$prop`, `array.$$[index]` and `array.$$length`](#-state--prop----array---index---and--array--length-)
+    - [`deepSignal`](#deepsignal)
+    - [`get prop() { ... }`](#get-prop---)
+    - [`state.$prop`](#stateprop)
+    - [`array.$[index]`](#arrayindex)
+    - [`array.$length`](#arraylength)
+    - [`peek(state, "prop")`](#peekstate-prop)
     - [`useDeepSignal`](#usedeepsignal)
-  - [When do you need access to signals?](#when-do-you-need-access-to-signals-)
+  - [When do you need access to signals?](#when-do-you-need-access-to-signals)
     - [Passing the value of a signal directly to JSX](#passing-the-value-of-a-signal-directly-to-jsx)
     - [Passing a signal to a child component](#passing-a-signal-to-a-child-component)
   - [TypeScript](#typescript)
@@ -31,7 +31,7 @@ It works by wrapping the object with a `Proxy` that intercepts all property acce
 - **Lazy initialization**: `deepsignal` uses lazy initialization, which means that signals and proxies are only created when they are accessed for the first time. This reduces the initialization time to almost zero and improves the overall performance in cases where you only need to observe a small subset of the object's properties.
 - **Stable references**: `deepsignal` uses stable references, which means that the same `Proxy` instances will be returned for the same objects so they can exist in different places of the data structure, just like regular JavaScript objects.
 - **Automatic derived state**: getters are automatically converted to computeds instead of signals.
-- **TypeScript support**: `deepsignal` is written in TypeScript and includes type definitions, so you can use it seamlessly with your TypeScript projects, including access to the signal and the peek value through the prefixes `state.$prop` and `state.$$prop`.
+- **TypeScript support**: `deepsignal` is written in TypeScript and includes type definitions, so you can use it seamlessly with your TypeScript projects, including access to the signal value through the prefix `state.$prop`.
 
 The most important feature is that **it just works**. You don't need to do anything special. Just create an object, mutate it normally and all your components will know when they need to rerender.
 
@@ -216,11 +216,13 @@ array.$length.subscribe(console.log);
 array.push(1);
 ```
 
-### `state.$$prop`, `array.$$[index]` and `array.$$length`
+### `peek(state, "prop")`
 
-Chances are you will rarely need access to the underlying JavaScript object except when you have an effect that should write to another signal based on the previous value, but you _don't_ want the effect to be subscribed to that signal. You can use `state.$$prop` to peek the value of a signal:
+Chances are you will rarely need access to the underlying JavaScript object without subscribing to the current computation except when you have an effect that should write to another signal based on the previous value, but you _don't_ want the effect to be subscribed to that signal. You can use `peek(state, "prop")` to peek at the value of a signal:
 
 ```js
+import { peek } from "deepsignal";
+
 const state = deepSignal({ value: 0, effectCount: 0 });
 
 effect(() => {
@@ -228,19 +230,13 @@ effect(() => {
 
 	// Whenever this effect is triggered, increase `effectCount`, but we don't
 	// want this effect to react to `effectCount`.
-	state.effectCount = state.$$effectCount + 1;
+	state.effectCount = peek(state, "effectCount") + 1;
 });
 ```
 
-Note that you should only use `state.$$prop` if you really need it. Reading a signal's value via `state.prop` is the preferred way in most scenarios.
+Note that you should only use `peek()` if you really need it. Reading a signal's value via `state.prop` is the preferred way in most scenarios.
 
-The `$$` prefixes follow the same rules as the `$` ones:
-
-- Peek an object property with `state.$$prop`.
-- Peek an array item with `array.$$[index]`.
-- Peek an array length with `array.$$length`.
-
-For primitive values, you can get away using `store.$prop.peek()` instead of `state.$$prop`. But in `deepsignal`, the underlying signals store the proxies, not the object. That means it's not safe to use `state.$prop.peek()` if `prop` is an object. You should use `state.$$prop` instead, which returns the original object.
+_For primitive values, you can get away with using `store.$prop.peek()` instead of `peek(state, "prop")`. But in `deepsignal`, the underlying signals store the proxies, not the object. That means it's not safe to use `state.$prop.peek().nestedProp` if `prop` is an object. You should use `peek(state, "prop").nestedProp` instead._
 
 ### `useDeepSignal`
 
