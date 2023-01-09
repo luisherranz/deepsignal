@@ -1,5 +1,7 @@
-name: compressed-size
+name: Compressed Size
+
 on: pull_request
+
 jobs:
   build:
     runs-on: ubuntu-latest
