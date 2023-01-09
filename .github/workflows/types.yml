@@ -37,4 +37,4 @@ jobs:
         run: pnpm install
 
       - name: Check types
-        run: pnpm tsc packages/deepsignal/core/test/types.ts --noEmit || exit 1
+        run: pnpm ci:types

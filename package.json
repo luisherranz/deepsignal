@@ -13,8 +13,10 @@
 		"test": "cross-env COVERAGE=true karma start karma.conf.js --single-run",
 		"test:minify": "cross-env COVERAGE=true MINIFY=true karma start karma.conf.js --single-run",
 		"test:watch": "karma start karma.conf.js --no-single-run",
+		"test:types": "pnpm tsc packages/deepsignal/core/test/types.ts --noEmit",
 		"ci:build": "pnpm build",
-		"ci:test": "pnpm lint && pnpm test"
+		"ci:test": "pnpm lint && pnpm test",
+		"ci:types": "pnpm tsc packages/deepsignal/core/test/types.ts --noEmit || exit 1"
 	},
 	"authors": [
 		"@luisherranz"
