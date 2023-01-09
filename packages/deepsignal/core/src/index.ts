@@ -97,8 +97,7 @@ interface MyArray<T> extends Array<T> {
 	): DeepSignal<T>;
 	reduceRight(
 		callbackfn: (
-			// previousValue: DeepSignal<T>, // Fail on purpose to test GH action
-			previousValue: T,
+			previousValue: DeepSignal<T>,
 			currentValue: DeepSignal<T>,
 			currentIndex: number,
 			array: DeepSignalArray<T[]>
