@@ -1,8 +1,12 @@
 # DeepSignal
 
-`deepsignal` is a package that allows you to use Preact signals in a plain JavaScript object that can be mutated.
+`deepsignal` is a package that allows you to use Preact signals with the interface of a plain JavaScript object.
 
 It works by wrapping the object with a `Proxy` that intercepts all property accesses and returns the signal value by default. This allows you to easily create a deep object that can be observed for changes, while still being able to mutate the object normally. Nested objects and arrays are also converted to deep signal objects/arrays, allowing you to create a fully reactive data structure. A prefix can be used to return the signal instance: `state.$prop`.
+
+**\>\> Play with it in [Stackblitz](https://stackblitz.com/edit/vitejs-vite-6qfchy?file=src%2Fmain.jsx) or [Codesanbdox](https://codesandbox.io/s/deepsignal-demo-hv1i1p) <<**
+
+### Table of contents
 
 - [DeepSignal](#deepsignal)
   - [Features](#features)
