@@ -4,11 +4,10 @@ const proxyToSignals = new WeakMap();
 const objToProxy = new WeakMap();
 const arrayToArrayOfSignals = new WeakMap();
 const rg = /^\$\$?/;
+let peeking = false;
 
 type DeepSignalObject<T extends object> = {
 	[P in keyof T & string as `$${P}`]?: Signal<T[P]>;
-} & {
-	[P in keyof T & string as `$$${P}`]?: T[P];
 } & {
 	[P in keyof T]: T[P] extends Array<unknown>
 		? DeepSignalArray<T[P]>
@@ -21,9 +20,7 @@ type ArrayType<T> = T extends Array<infer I> ? I : T;
 type DeepSignalArray<T> = Array<ArrayType<T>> & {
 	[key: number]: DeepSignal<ArrayType<T>>;
 	$?: { [key: number]: Signal<ArrayType<T>> };
-	$$?: { [key: number]: ArrayType<T> };
 	$length?: Signal<number>;
-	$$length?: number;
 };
 
 export type DeepSignal<T> = T extends Array<unknown>
@@ -41,9 +38,33 @@ export const deepSignal = <T extends object>(obj: T): DeepSignal<T> => {
 	return objToProxy.get(obj);
 };
 
+type FilterSignals<K> = K extends `$${infer P}` ? never : K;
+type RevertDeepSignalObject<T> = Pick<T, FilterSignals<keyof T>>;
+type RevertDeepSignalArray<T> = Omit<T, "$" | "$length">;
+
+type RevertDeepSignal<T> = T extends Array<unknown>
+	? RevertDeepSignalArray<T>
+	: T extends object
+	? RevertDeepSignalObject<T>
+	: T;
+
+export const peek = <
+	T extends DeepSignalObject<object>,
+	K extends keyof RevertDeepSignalObject<T>
+>(
+	obj: T,
+	key: K
+): RevertDeepSignal<RevertDeepSignalObject<T>[K]> => {
+	peeking = true;
+	const value = obj[key];
+	peeking = false;
+	return value as RevertDeepSignal<RevertDeepSignalObject<T>[K]>;
+};
+
 const get =
 	(isArrayOfSignals: boolean) =>
 	(target: object, fullKey: string, receiver: object): unknown => {
+		if (peeking) return Reflect.get(target, fullKey, receiver);
 		let returnSignal = isArrayOfSignals || fullKey[0] === "$";
 		if (!isArrayOfSignals && returnSignal && Array.isArray(target)) {
 			if (fullKey === "$") {
@@ -51,8 +72,7 @@ const get =
 					arrayToArrayOfSignals.set(target, new Proxy(target, arrayHandlers));
 				return arrayToArrayOfSignals.get(target);
 			}
-			if (fullKey === "$$") return target;
-			returnSignal = fullKey === "$length" || fullKey === "$$length";
+			returnSignal = fullKey === "$length";
 		}
 		if (!proxyToSignals.has(receiver)) proxyToSignals.set(receiver, new Map());
 		const signals = proxyToSignals.get(receiver);
@@ -61,8 +81,6 @@ const get =
 			!signals.has(key) &&
 			typeof Object.getOwnPropertyDescriptor(target, key)?.get === "function"
 		) {
-			if (returnSignal && fullKey[1] === "$")
-				return Reflect.get(target, key, receiver);
 			signals.set(
 				key,
 				computed(() => Reflect.get(target, key, receiver))
@@ -70,7 +88,6 @@ const get =
 		} else {
 			let value = Reflect.get(target, key, receiver);
 			if (typeof key === "symbol" && wellKnownSymbols.has(key)) return value;
-			if (returnSignal && fullKey[1] === "$") return value;
 			if (!signals.has(key)) {
 				if (shouldProxy(value)) {
 					if (!objToProxy.has(value))
