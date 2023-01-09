@@ -125,7 +125,7 @@ type DeepSignalObject<T extends object> = {
 };
 
 // @ts-expect-error
-interface MyArray<T> extends Array<T> {
+interface DeepArray<T> extends Array<T> {
 	map: <U>(
 		callbackfn: (
 			value: DeepSignal<T>,
@@ -223,7 +223,7 @@ interface MyArray<T> extends Array<T> {
 	): U;
 }
 type ArrayType<T> = T extends Array<infer I> ? I : T;
-type DeepSignalArray<T> = MyArray<ArrayType<T>> & {
+type DeepSignalArray<T> = DeepArray<ArrayType<T>> & {
 	[key: number]: DeepSignal<ArrayType<T>>;
 	$?: { [key: number]: Signal<ArrayType<T>> };
 	$length?: Signal<number>;
