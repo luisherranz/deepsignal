@@ -14,8 +14,7 @@
 		"test:minify": "cross-env COVERAGE=true MINIFY=true karma start karma.conf.js --single-run",
 		"test:watch": "karma start karma.conf.js --no-single-run",
 		"ci:build": "pnpm build",
-		"ci:test": "pnpm lint && pnpm test",
-		"release": "pnpm changeset version && pnpm install && git add -A && git commit -m 'Version Packages' && changeset tag && pnpm publish -r"
+		"ci:test": "pnpm lint && pnpm test"
 	},
 	"authors": [
 		"@luisherranz"
