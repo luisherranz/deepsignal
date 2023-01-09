@@ -121,6 +121,12 @@ describe("deepsignal/core", () => {
 			store.switch = "b";
 			expect(store.aOrB.$data!.value).to.equal("b");
 		});
+
+		it("should return signals from array iterators", () => {
+			const store = deepSignal([{ a: 1 }, { a: 2 }]);
+			const signals = store.map(item => item.$a!.value);
+			expect(signals).to.deep.equal([1, 2]);
+		});
 	});
 
 	describe("set", () => {
