@@ -110,9 +110,7 @@ const shouldProxy = (val: any): boolean => {
 	return !isBuiltIn || supported.has(val.constructor);
 };
 
-/***********/
-/** Types **/
-/***********/
+/** TYPES **/
 
 type DeepSignalObject<T extends object> = {
 	[P in keyof T & string as `$${P}`]?: Signal<T[P]>;
@@ -124,7 +122,7 @@ type DeepSignalObject<T extends object> = {
 		: T[P];
 };
 
-// @ts-expect-error
+/** @ts-expect-error **/
 interface DeepArray<T> extends Array<T> {
 	map: <U>(
 		callbackfn: (
