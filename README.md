@@ -1,10 +1,18 @@
-# DeepSignal
+# 🧶 DeepSignal
 
-`deepsignal` is a package that allows you to use Preact signals with the interface of a plain JavaScript object.
+Use [Preact signals](https://github.com/preactjs/signals) with the interface of a plain JavaScript object.
 
-It works by wrapping the object with a `Proxy` that intercepts all property accesses and returns the signal value by default. This allows you to easily create a deep object that can be observed for changes, while still being able to mutate the object normally. Nested objects and arrays are also converted to deep signal objects/arrays, allowing you to create a fully reactive data structure. A prefix can be used to return the signal instance: `state.$prop`.
+- **DeepSignal** works by wrapping the object with a `Proxy` that intercepts all property accesses and returns the signal value by default.
+- This allows you to easily create a **deep object that can be observed for changes**, while still being able to **mutate the object normally**.
+- Nested objects and arrays are also converted to deep signal objects/arrays, allowing you to create **fully reactive data structures**.
+- The `$` prefix returns the signal instance: `state.$prop`.
 
-**\>\> Play with it in [Stackblitz](https://stackblitz.com/edit/vitejs-vite-6qfchy?file=src%2Fmain.jsx) or [Codesanbdox](https://codesandbox.io/s/deepsignal-demo-hv1i1p) <<**
+---
+
+- [Try it on Stackblitz](https://stackblitz.com/edit/vitejs-vite-6qfchy?file=src%2Fmain.jsx)! ––– _[TypeScript version](https://stackblitz.com/edit/vitejs-vite-hktyyf?file=src%2Fmain.tsx)_
+- [Try it on Codesandbox](https://codesandbox.io/s/deepsignal-demo-hv1i1p)! ––– _[TypeScript version](https://codesandbox.io/s/deepsignal-demo-typescript-os7ox0?file=/src/index.tsx)_
+
+---
 
 ### Table of contents
 
@@ -52,6 +60,8 @@ import { deepSignal } from "deepsignal";
 
 const state = deepSignal({});
 ```
+
+#### Usage without Preact
 
 If you are using the library with `@preact/signals-core`, you should use the `deepsignal/core` import.
 
