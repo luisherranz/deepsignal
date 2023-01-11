@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.1.1
+
+### Patch Changes
+
+- [#3](https://github.com/luisherranz/deepsignal/pull/3) [`2044911`](https://github.com/luisherranz/deepsignal/commit/20449118e631e5b3129f1ae1ba1b81eb0fcf78d0) Thanks [@luisherranz](https://github.com/luisherranz)! - TypeScript: add types for the array methods (map, filter, etc).
+
 ## 1.1.0
 
 ### Minor Changes
