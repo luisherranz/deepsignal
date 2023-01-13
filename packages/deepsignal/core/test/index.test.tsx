@@ -58,10 +58,28 @@ describe("deepsignal/core", () => {
 			store.switch = "b";
 			expect(store.aOrB.data).to.equal("b");
 		});
+
+		it("should work with normal functions", () => {
+			const store = deepSignal({
+				value: 1,
+				isBigger: (newValue: number): boolean => store.value < newValue,
+				sum(newValue: number): number {
+					return store.value + newValue;
+				},
+				replace: (newValue: number): void => {
+					store.value = newValue;
+				},
+			});
+			expect(store.isBigger(2)).to.equal(true);
+			expect(store.sum(2)).to.equal(3);
+			expect(store.value).to.equal(1);
+			store.replace(2);
+			expect(store.value).to.equal(2);
+		});
 	});
 
 	describe("get - signals ($)", () => {
-		it("should return signal instance when using $prop", () => {
+		it("should return signal instance when using store.$prop", () => {
 			expect(store.$a).to.be.instanceOf(Signal);
 			expect(store.$a!.value).to.equal(1);
 			expect(store.$nested).to.be.instanceOf(Signal);
@@ -70,7 +88,7 @@ describe("deepsignal/core", () => {
 			expect(store.nested.$b!.value).to.equal(2);
 		});
 
-		it("should return signal instance when accessing $[x] in arrays", () => {
+		it("should return signal instance when accessing array.$[index] in arrays", () => {
 			expect(store.$array).to.be.instanceOf(Signal);
 			expect(store.$array!.value[0]).to.equal(3);
 			expect(store.array.$![0]).to.be.instanceOf(Signal);
@@ -87,13 +105,18 @@ describe("deepsignal/core", () => {
 			).to.equal(2);
 		});
 
-		it("should return length signal in arrays using $length", () => {
+		it("should return length signal in arrays using array.$length", () => {
 			expect(store.array.$length).to.be.instanceOf(Signal);
 			expect(store.array.$length!.value).to.equal(2);
 		});
 
-		it("should not return signals in arrays using $prop", () => {
+		it("should not return signals in arrays using array.$index", () => {
 			expect((store.array as any).$0).to.be.undefined;
+		});
+
+		it("should not return signals of functions using store.$function", () => {
+			const store = deepSignal({ func: () => {} });
+			expect(store.$func).to.be.undefined;
 		});
 
 		it("should support reading signals from getters", () => {
@@ -120,6 +143,12 @@ describe("deepsignal/core", () => {
 			expect(store.aOrB.$data!.value).to.equal("a");
 			store.switch = "b";
 			expect(store.aOrB.$data!.value).to.equal("b");
+		});
+
+		it("should return signals from array iterators", () => {
+			const store = deepSignal([{ a: 1 }, { a: 2 }]);
+			const signals = store.map(item => item.$a!.value);
+			expect(signals).to.deep.equal([1, 2]);
 		});
 
 		it("should return signals from array iterators", () => {
