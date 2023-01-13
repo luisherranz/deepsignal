@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.1.2
+
+### Patch Changes
+
+- [#6](https://github.com/luisherranz/deepsignal/pull/6) [`cd8c4a2`](https://github.com/luisherranz/deepsignal/commit/cd8c4a2717efe30305bfaf13305e193c93d85e1c) Thanks [@luisherranz](https://github.com/luisherranz)! - Support regular functions inside the deep signal.
+
 ## 1.1.1
 
 ### Patch Changes
