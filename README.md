@@ -44,6 +44,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
 - **Stable references**: `deepsignal` uses stable references, which means that the same `Proxy` instances will be returned for the same objects so they can exist in different places of the data structure, just like regular JavaScript objects.
 - **Automatic derived state**: getters are automatically converted to computeds instead of signals.
 - **TypeScript support**: `deepsignal` is written in TypeScript and includes type definitions, so you can use it seamlessly with your TypeScript projects, including access to the signal value through the prefix `state.$prop`.
+- **State management**: `deepsignal` can be used as a state manager, including state and actions in the same object.
 
 The most important feature is that **it just works**. You don't need to do anything special. Just create an object, mutate it normally and all your components will know when they need to rerender.
 
@@ -61,7 +62,7 @@ import { deepSignal } from "deepsignal";
 const state = deepSignal({});
 ```
 
-#### Usage without Preact
+#### Without Preact
 
 If you are using the library with `@preact/signals-core`, you should use the `deepsignal/core` import.
 
@@ -116,6 +117,30 @@ function Counter() {
 	return (
 		<button onClick={() => (state.count += 1)}>
 			{state.$count} x 2 = {state.$double}
+		</button>
+	);
+}
+```
+
+You can also add actions inside the deep signal and use it as a state manager.
+
+```js
+import { deepSignal } from "deepsignal";
+
+const store = deepSignal({
+	count: 0,
+	get double() {
+		return store.count * 2;
+	},
+	inc: () => {
+		store.count += 1;
+	},
+});
+
+function Counter() {
+	return (
+		<button onClick={store.inc}>
+			{store.$count} x 2 = {store.$double}
 		</button>
 	);
 }
