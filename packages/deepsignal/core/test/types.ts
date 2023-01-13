@@ -40,3 +40,26 @@ const a27: Signal<number> = array.reduceRight(
 	(prev, curr) => (prev.$a!.value > curr.$a!.value ? prev : curr),
 	{ a: 3 }
 ).$a!;
+// @ts-expect-error
+array.$0;
+
+// Normal functions.
+const store = deepSignal({
+	value: 1,
+	isBigger: (newValue: number): boolean => store.value > newValue,
+	sum(newValue: number): number {
+		return store.value + newValue;
+	},
+	valueSignal: (): Signal<number> => store.$value!,
+	nested: {
+		toString: (): string => `${store.value}`,
+	},
+});
+const s1: boolean = store.isBigger(2);
+const s2: number = store.sum(2);
+const s3: Signal<number> = store.valueSignal();
+const s4: string = store.toString();
+// @ts-expect-error
+store.isBigger!.value();
+// @ts-expect-error
+store.nested.$toString!.value();

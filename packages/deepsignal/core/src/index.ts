@@ -52,6 +52,7 @@ const get =
 			);
 		} else {
 			let value = Reflect.get(target, key, receiver);
+			if (returnSignal && typeof value === "function") return;
 			if (typeof key === "symbol" && wellKnownSymbols.has(key)) return value;
 			if (!signals.has(key)) {
 				if (shouldProxy(value)) {
@@ -112,14 +113,20 @@ const shouldProxy = (val: any): boolean => {
 
 /** TYPES **/
 
+export type DeepSignal<T> = T extends Function
+	? T
+	: T extends Array<unknown>
+	? DeepSignalArray<T>
+	: T extends object
+	? DeepSignalObject<T>
+	: T;
+
 type DeepSignalObject<T extends object> = {
-	[P in keyof T & string as `$${P}`]?: Signal<T[P]>;
+	[P in keyof T & string as `$${P}`]?: T[P] extends Function
+		? never
+		: Signal<T[P]>;
 } & {
-	[P in keyof T]: T[P] extends Array<unknown>
-		? DeepSignalArray<T[P]>
-		: T[P] extends object
-		? DeepSignalObject<T[P]>
-		: T[P];
+	[P in keyof T]: DeepSignal<T[P]>;
 };
 
 /** @ts-expect-error **/
@@ -226,12 +233,6 @@ type DeepSignalArray<T> = DeepArray<ArrayType<T>> & {
 	$?: { [key: number]: Signal<ArrayType<T>> };
 	$length?: Signal<number>;
 };
-
-export type DeepSignal<T> = T extends Array<unknown>
-	? DeepSignalArray<T>
-	: T extends object
-	? DeepSignalObject<T>
-	: T;
 
 export declare const useDeepSignal: <T extends object>(obj: T) => DeepSignal<T>;
 
