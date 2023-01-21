@@ -26,10 +26,10 @@
 			"require": "./dist/deepsignal.js"
 		},
 		"./core": {
-			"types": "./preact/dist/deepsignal-core.d.ts",
-			"browser": "./preact/dist/deepsignal-core.module.js",
-			"import": "./preact/dist/deepsignal-core.mjs",
-			"require": "./preact/dist/deepsignal-core.js"
+			"types": "./core/dist/deepsignal-core.d.ts",
+			"browser": "./core/dist/deepsignal-core.module.js",
+			"import": "./core/dist/deepsignal-core.mjs",
+			"require": "./core/dist/deepsignal-core.js"
 		}
 	},
 	"scripts": {
