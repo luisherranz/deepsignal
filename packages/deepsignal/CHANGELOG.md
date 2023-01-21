@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.1.3
+
+### Patch Changes
+
+- [#9](https://github.com/luisherranz/deepsignal/pull/9) [`364c169`](https://github.com/luisherranz/deepsignal/commit/364c1696c759442b4360bbbc6bbe921d6ff66ef5) Thanks [@luisherranz](https://github.com/luisherranz)! - Fix `deepsignal/core` exports.
+
 ## 1.1.2
 
 ### Patch Changes
