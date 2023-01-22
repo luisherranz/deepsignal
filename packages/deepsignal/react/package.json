@@ -1,0 +1,26 @@
+{
+	"name": "deepsignal-react",
+	"version": "1.0.0",
+	"private": true,
+	"main": "dist/deepsignal-react.js",
+	"module": "dist/deepsignal-react.module.js",
+	"unpkg": "dist/deepsignal-react.min.js",
+	"types": "dist/deepsignal-react.d.ts",
+	"source": "src/index.ts",
+	"license": "MIT",
+	"dependencies": {
+		"@preact/signals-core": "^1.0.0",
+		"@preact/signals-react": "^1.0.0"
+	},
+	"peerDependencies": {
+		"react": "17.x || 18.x"
+	},
+	"exports": {
+		".": {
+			"types": "./dist/deepsignal-react.d.ts",
+			"browser": "./dist/deepsignal-react.module.js",
+			"import": "./dist/deepsignal-react.mjs",
+			"require": "./dist/deepsignal-react.js"
+		}
+	}
+}

@@ -61,6 +61,7 @@ function createEsbuildPlugin() {
 	const alias = {
 		deepsignal: subPkgPath("./packages/deepsignal"),
 		"deepsignal/core": subPkgPath("./packages/deepsignal/core"),
+		"deepsignal/react": subPkgPath("./packages/deepsignal/react"),
 	};
 
 	return {
