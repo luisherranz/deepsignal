@@ -11,9 +11,6 @@
 	"dependencies": {
 		"@preact/signals-core": "^1.0.0"
 	},
-	"peerDependencies": {
-		"preact": "^10.0.0"
-	},
 	"exports": {
 		".": {
 			"types": "./dist/deepsignal-core.d.ts",
