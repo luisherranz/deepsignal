@@ -1,4 +1,4 @@
-import { Signal, effect } from "@preact/signals-core";
+import { Signal, effect, signal } from "@preact/signals-core";
 import { deepSignal, peek } from "deepsignal/core";
 
 describe("deepsignal/core", () => {
@@ -212,6 +212,22 @@ describe("deepsignal/core", () => {
 		it("should throw when trying to mutate the signals array", () => {
 			expect(() => ((store.array.$ as any)[0] = 2)).to.throw();
 		});
+
+		it("should allow singal assignments", () => {
+			const store = deepSignal<{ ss?: string }>({});
+			const ss = signal('value');
+
+			store.$ss = ss;
+
+			expect(store.ss).to.equal('value');
+			expect(store.$ss).to.equal(ss);
+
+			store.ss = 'newValue';
+
+			expect(ss.value).to.equal('newValue');
+			expect(store.ss).to.equal('newValue');
+			expect(store.$ss).to.equal(ss);
+		})
 	});
 
 	describe("computations", () => {
