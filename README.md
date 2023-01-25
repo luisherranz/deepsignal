@@ -24,6 +24,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [`deepSignal`](#deepsignal)
     - [`get prop() { ... }`](#get-prop---)
     - [`state.$prop`](#stateprop)
+    - [`set $prop() { ... }`](#set-prop---)
     - [`array.$[index]`](#arrayindex)
     - [`array.$length`](#arraylength)
     - [`peek(state, "prop")`](#peekstate-prop)
@@ -222,6 +223,23 @@ const state = deepSignal({ counter: 0 });
 state.$counter.subscribe(console.log);
 
 // Mutates the underlying signal. The subscription runs again, logs: 1.
+state.counter = 1;
+```
+
+### `set $prop() { ... }`
+
+You can modify the underlying signal of an object's property doing an assignment to the `$`-prefixed name.
+
+```js
+const state = deepSignal({ counter: 0 });
+
+// Runs the first time, read value from signal, logs: 0.
+state.$counter.subscribe(console.log);
+
+// Replace the signal with a new one.
+state.$counter = signal(10);
+
+// The subscription doesn't run this time; it's a different signal!
 state.counter = 1;
 ```
 
