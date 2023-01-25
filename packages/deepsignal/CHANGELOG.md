@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.2.0
+
+### Minor Changes
+
+- [#12](https://github.com/luisherranz/deepsignal/pull/12) [`f2c5d5b`](https://github.com/luisherranz/deepsignal/commit/f2c5d5b29a6674cf77f1b4da2a404c3c86a5ebe8) Thanks [@DAreRodz](https://github.com/DAreRodz)! - Allow replacing signals with a new signal instance, e.g., `state.$prop = signal(1)`.
+
 ## 1.1.3
 
 ### Patch Changes
