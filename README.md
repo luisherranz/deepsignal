@@ -24,10 +24,10 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [`deepSignal`](#deepsignal)
     - [`get prop() { ... }`](#get-prop---)
     - [`state.$prop`](#stateprop)
-    - [`state.$prop = signal(value)`](#stateprop--signalvalue)
     - [`array.$[index]`](#arrayindex)
     - [`array.$length`](#arraylength)
     - [`peek(state, "prop")`](#peekstate-prop)
+    - [`state.$prop = signal(value)`](#stateprop--signalvalue)
     - [`useDeepSignal`](#usedeepsignal)
   - [When do you need access to signals?](#when-do-you-need-access-to-signals)
     - [Passing the value of a signal directly to JSX](#passing-the-value-of-a-signal-directly-to-jsx)
@@ -226,23 +226,6 @@ state.$counter.subscribe(console.log);
 state.counter = 1;
 ```
 
-### `state.$prop = signal(value)`
-
-You can modify the underlying signal of an object's property doing an assignment to the `$`-prefixed name.
-
-```js
-const state = deepSignal({ counter: 0 });
-
-// Runs the first time, read value from signal, logs: 0.
-state.$counter.subscribe(console.log);
-
-// Replace the signal with a new one.
-state.$counter = signal(10);
-
-// The subscription doesn't run this time; it's a different signal!
-state.counter = 1;
-```
-
 ### `array.$[index]`
 
 You can access the underlying signal of an array's item by using the `$` prefix, like so: `state.$[index]`.
@@ -294,6 +277,23 @@ effect(() => {
 Note that you should only use `peek()` if you really need it. Reading a signal's value via `state.prop` is the preferred way in most scenarios.
 
 _For primitive values, you can get away with using `store.$prop.peek()` instead of `peek(state, "prop")`. But in `deepsignal`, the underlying signals store the proxies, not the object. That means it's not safe to use `state.$prop.peek().nestedProp` if `prop` is an object. You should use `peek(state, "prop").nestedProp` instead._
+
+### `state.$prop = signal(value)`
+
+You can modify the underlying signal of an object's property doing an assignment to the `$`-prefixed name.
+
+```js
+const state = deepSignal({ counter: 0 });
+
+// Runs the first time, read value from signal, logs: 0.
+state.$counter.subscribe(console.log);
+
+// Replace the signal with a new one.
+state.$counter = signal(10);
+
+// The subscription doesn't run this time; it's a different signal!
+state.counter = 1;
+```
 
 ### `useDeepSignal`
 
