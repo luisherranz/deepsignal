@@ -213,21 +213,21 @@ describe("deepsignal/core", () => {
 			expect(() => ((store.array.$ as any)[0] = 2)).to.throw();
 		});
 
-		it("should allow singal assignments", () => {
-			const store = deepSignal<{ ss?: string }>({});
-			const ss = signal('value');
+		it("should allow signal assignments", () => {
+			const store = deepSignal<{ a?: number }>({});
+			const a = signal(1);
 
-			store.$ss = ss;
+			store.$a = a;
 
-			expect(store.ss).to.equal('value');
-			expect(store.$ss).to.equal(ss);
+			expect(store.a).to.equal(1);
+			expect(store.$a).to.equal(a);
 
-			store.ss = 'newValue';
+			store.a = 2;
 
-			expect(ss.value).to.equal('newValue');
-			expect(store.ss).to.equal('newValue');
-			expect(store.$ss).to.equal(ss);
-		})
+			expect(a.value).to.equal(2);
+			expect(store.a).to.equal(2);
+			expect(store.$a).to.equal(a);
+		});
 	});
 
 	describe("computations", () => {
