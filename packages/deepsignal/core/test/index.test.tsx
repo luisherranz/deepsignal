@@ -228,6 +228,16 @@ describe("deepsignal/core", () => {
 			expect(store.a).to.equal(2);
 			expect(store.$a).to.equal(a);
 		});
+
+		it("should not create wrong artifacts when assigning signals", () => {
+			const store = deepSignal<{ a?: number }>({});
+			const a = signal(1);
+
+			store.$a = a;
+
+			expect(peek(store as any, "$a")).to.equal(undefined);
+			expect(peek(store, "a")).to.equal(1);
+		});
 	});
 
 	describe("computations", () => {

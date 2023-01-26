@@ -1,4 +1,4 @@
-import { Signal } from "@preact/signals-core";
+import { signal, Signal } from "@preact/signals-core";
 import { deepSignal, peek } from "../src";
 
 // Arrays.
@@ -44,22 +44,33 @@ const a27: Signal<number> = array.reduceRight(
 array.$0;
 
 // Normal functions.
-const store = deepSignal({
+const store1 = deepSignal({
 	value: 1,
-	isBigger: (newValue: number): boolean => store.value > newValue,
+	isBigger: (newValue: number): boolean => store1.value > newValue,
 	sum(newValue: number): number {
-		return store.value + newValue;
+		return store1.value + newValue;
 	},
-	valueSignal: (): Signal<number> => store.$value!,
+	valueSignal: (): Signal<number> => store1.$value!,
 	nested: {
-		toString: (): string => `${store.value}`,
+		toString: (): string => `${store1.value}`,
 	},
 });
-const s1: boolean = store.isBigger(2);
-const s2: number = store.sum(2);
-const s3: Signal<number> = store.valueSignal();
-const s4: string = store.toString();
+const s1: boolean = store1.isBigger(2);
+const s2: number = store1.sum(2);
+const s3: Signal<number> = store1.valueSignal();
+const s4: string = store1.toString();
 // @ts-expect-error
-store.isBigger!.value();
+store1.isBigger!.value();
 // @ts-expect-error
-store.nested.$toString!.value();
+store1.nested.$toString!.value();
+
+// Signal assignments.
+const store2 = deepSignal<{ a?: number }>({});
+const a = signal(1);
+
+// @ts-expect-error
+store2.a = a;
+
+store2.$a = a;
+const s5: number = store2.a!;
+const s6: Signal<number | undefined> = store2.$a;
