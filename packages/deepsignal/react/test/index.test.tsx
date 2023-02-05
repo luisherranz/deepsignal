@@ -1,14 +1,11 @@
-// @ts-ignore-next-line
+// @ts-ignore
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
-import { signal } from "@preact/signals-react";
-import { createElement, useMemo, memo, StrictMode, createRef } from "react";
+// @ts-ignore
+import { createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
-import { useDeepSignal, type DeepSignal } from "deepsignal";
-
-const sleep = (ms?: number) => new Promise(r => setTimeout(r, ms));
-signal(0);
+import { useDeepSignal, type DeepSignal } from "deepsignal/react";
 
 describe("deepsignal/react", () => {
 	let scratch: HTMLDivElement;
@@ -39,13 +36,12 @@ describe("deepsignal/react", () => {
 				return <p>{state.test}</p>;
 			}
 
+			// @ts-ignore
 			render(<App />);
 
 			expect(scratch.textContent).to.equal("test");
 			expect(spy).to.be.calledOnce;
 			const stateAfterRender = state!;
-
-			await sleep(1);
 
 			act(() => {
 				state!.test = "updated";
