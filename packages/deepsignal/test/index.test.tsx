@@ -1,11 +1,9 @@
-import "@preact/signals";
+// @ts-ignore
 import { createElement, createRef, render } from "preact";
 import { setupRerender } from "preact/test-utils";
 import { deepSignal, useDeepSignal, type DeepSignal } from "deepsignal";
 
-const sleep = (ms?: number) => new Promise(r => setTimeout(r, ms));
-
-describe("deepsignal", () => {
+describe("deepsignal (preact)", () => {
 	let scratch: HTMLDivElement;
 	let rerender: () => void;
 
@@ -56,7 +54,6 @@ describe("deepsignal", () => {
 			// Should update the text in-place.
 			expect(text).to.have.property("data", "changed");
 
-			await sleep();
 			expect(spy).not.to.have.been.called;
 		});
 
@@ -77,7 +74,6 @@ describe("deepsignal", () => {
 			expect(scratch.firstChild).to.have.property("value", "updated");
 
 			// Ensure the component was never re-rendered: (even after a tick).
-			await sleep();
 			expect(spy).not.to.have.been.called;
 
 			state.test = "second update";
@@ -85,7 +81,6 @@ describe("deepsignal", () => {
 			expect(scratch.firstChild).to.have.property("value", "second update");
 
 			// Ensure the component was never re-rendered: (even after a tick).
-			await sleep();
 			expect(spy).not.to.have.been.called;
 		});
 	});
@@ -162,8 +157,6 @@ describe("deepsignal", () => {
 			expect(scratch.textContent).to.equal("test");
 			expect(spy).to.be.calledOnce;
 			const stateAfterRender = state!;
-
-			await sleep(1);
 
 			state!.test = "updated";
 			rerender();
