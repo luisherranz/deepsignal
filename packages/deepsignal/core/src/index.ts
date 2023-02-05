@@ -70,22 +70,28 @@ const mutationError = "Don't mutate the signals directly.";
 
 const objectHandlers = {
 	get: get(false),
-	set(target: object, key: string, val: any, receiver: object) {
-		if (key[0] === "$") throw new Error(mutationError);
-		let internal = val;
-		if (shouldProxy(val)) {
-			if (!objToProxy.has(val))
-				objToProxy.set(val, new Proxy(val, objectHandlers));
-			internal = objToProxy.get(val);
-		}
+	set(target: object, fullKey: string, val: any, receiver: object) {
 		if (!proxyToSignals.has(receiver)) proxyToSignals.set(receiver, new Map());
 		const signals = proxyToSignals.get(receiver);
-		if (!signals.has(key)) signals.set(key, signal(internal));
-		else signals.get(key).value = internal;
-		const result = Reflect.set(target, key, val, receiver);
-		if (Array.isArray(target) && signals.has("length"))
-			signals.get("length").value = target.length;
-		return result;
+		if (fullKey[0] === "$") {
+			if (!(val instanceof Signal)) throw new Error(mutationError);
+			const key = fullKey.replace(rg, "");
+			signals.set(key, val);
+			return Reflect.set(target, key, val.peek(), receiver);
+		} else {
+			let internal = val;
+			if (shouldProxy(val)) {
+				if (!objToProxy.has(val))
+					objToProxy.set(val, new Proxy(val, objectHandlers));
+				internal = objToProxy.get(val);
+			}
+			if (!signals.has(fullKey)) signals.set(fullKey, signal(internal));
+			else signals.get(fullKey).value = internal;
+			const result = Reflect.set(target, fullKey, val, receiver);
+			if (Array.isArray(target) && signals.has("length"))
+				signals.get("length").value = target.length;
+			return result;
+		}
 	},
 };
 
