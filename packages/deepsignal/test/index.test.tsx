@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-ignore: createElement needs to be on the scope
 import { createElement, createRef, render } from "preact";
 import { setupRerender } from "preact/test-utils";
 import { deepSignal, useDeepSignal, type DeepSignal } from "deepsignal";
