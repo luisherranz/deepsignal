@@ -63,9 +63,19 @@ import { deepSignal } from "deepsignal";
 const state = deepSignal({});
 ```
 
-#### Without Preact
+### With React
 
-If you are using the library with `@preact/signals-core`, you should use the `deepsignal/core` import.
+If you are using the library with React, you should use the `deepsignal/react` import. You don't need to install or import `@preact/signals-react` anywhere in your code if you don't need it.
+
+```js
+import { deepSignal } from "deepsignal/react";
+
+const state = deepSignal({});
+```
+
+### Without Preact/React
+
+If you are using the library just with `@preact/signals-core`, you should use the `deepsignal/core` import.
 
 ```js
 import { deepSignal } from "deepsignal/core";
@@ -74,8 +84,6 @@ const state = deepSignal({});
 ```
 
 This is because the `deepsignal` import includes a dependency on `@preact/signals`, while the `deepsignal/core` import does not. This allows you to use deep signals with either `@preact/signals` or `@preact/signals-core`, depending on your needs. **Do not use both.**
-
-_There's no support for `@preact/signals-react` yet but if you need it, please open an issue._
 
 ## Usage
 
@@ -297,12 +305,14 @@ state.counter = 1;
 
 ### `useDeepSignal`
 
-_Only available on `deepsignal`, not on `deepsignal/core`._
+_Only available on `deepsignal` and `deepsignal/react`, not on `deepsignal/core`._
 
 If you need to create a reference stable version of a deep signal that is hooked to a component instance you can use the `useDeepSignal` hook:
 
 ```js
 import { useDeepSignal } from "deepsignal";
+// or
+import { useDeepSignal } from "deepsignal/react";
 
 function Counter() {
 	const state = useDeepSignal({
