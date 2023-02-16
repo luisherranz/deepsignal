@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.3.0
+
+### Minor Changes
+
+- [#11](https://github.com/luisherranz/deepsignal/pull/11) [`e562f1d`](https://github.com/luisherranz/deepsignal/commit/e562f1d4e22e1885eb9e5055a05c6abde600616e) Thanks [@luisherranz](https://github.com/luisherranz)! - Add official support for React with the `deepsignal/react` entry point.
+
 ## 1.2.1
 
 ### Patch Changes
