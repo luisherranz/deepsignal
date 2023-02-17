@@ -9,8 +9,16 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
 
 ---
 
-- [Try it on Stackblitz](https://stackblitz.com/edit/vitejs-vite-6qfchy?file=src%2Fmain.jsx)! ––– _[TypeScript version](https://stackblitz.com/edit/vitejs-vite-hktyyf?file=src%2Fmain.tsx)_
-- [Try it on Codesandbox](https://codesandbox.io/s/deepsignal-demo-hv1i1p)! ––– _[TypeScript version](https://codesandbox.io/s/deepsignal-demo-typescript-os7ox0?file=/src/index.tsx)_
+- Try it on Stackblitz
+  - [Preact](https://stackblitz.com/edit/vitejs-vite-6qfchy?file=src%2Fmain.jsx) 
+  - [Preact & TypeScript](https://stackblitz.com/edit/vitejs-vite-hktyyf?file=src%2Fmain.tsx) 
+  - [React](https://stackblitz.com/edit/vitejs-vite-zoh464?file=src%2Fmain.jsx) 
+  - [React & TypeScript](https://stackblitz.com/edit/vitejs-vite-r2stgq?file=src%2Fmain.tsx) 
+- Or on Codesandbox
+  - [Preact](https://codesandbox.io/s/deepsignal-demo-hv1i1p) 
+  - [Preact & TypeScript](https://codesandbox.io/s/deepsignal-demo-typescript-os7ox0?file=/src/index.tsx) 
+  - [React](https://codesandbox.io/s/deepsignal-demo-react-fupt1x?file=/src/index.js) 
+  - [React & TypeScript](https://codesandbox.io/s/deepsignal-demo-react-typescript-jszfjw?file=/src/index.tsx)
 
 ---
 
