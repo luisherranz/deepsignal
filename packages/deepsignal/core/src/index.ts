@@ -3,13 +3,14 @@ import { computed, signal, Signal } from "@preact/signals-core";
 const proxyToSignals = new WeakMap();
 const objToProxy = new WeakMap();
 const arrayToArrayOfSignals = new WeakMap();
+const proxies = new WeakSet();
 const rg = /^\$\$?/;
 let peeking = false;
 
 export const deepSignal = <T extends object>(obj: T): DeepSignal<T> => {
 	if (!shouldProxy(obj)) throw new Error("This object can't be observed.");
 	if (!objToProxy.has(obj))
-		objToProxy.set(obj, new Proxy(obj, objectHandlers) as DeepSignal<T>);
+		objToProxy.set(obj, createProxy(obj, objectHandlers) as DeepSignal<T>);
 	return objToProxy.get(obj);
 };
 
@@ -26,6 +27,12 @@ export const peek = <
 	return value as RevertDeepSignal<RevertDeepSignalObject<T>[K]>;
 };
 
+const createProxy = (target: object, handlers: ProxyHandler<object>) => {
+	const proxy = new Proxy(target, handlers);
+	proxies.add(proxy);
+	return proxy;
+};
+
 const get =
 	(isArrayOfSignals: boolean) =>
 	(target: object, fullKey: string, receiver: object): unknown => {
@@ -34,7 +41,7 @@ const get =
 		if (!isArrayOfSignals && returnSignal && Array.isArray(target)) {
 			if (fullKey === "$") {
 				if (!arrayToArrayOfSignals.has(target))
-					arrayToArrayOfSignals.set(target, new Proxy(target, arrayHandlers));
+					arrayToArrayOfSignals.set(target, createProxy(target, arrayHandlers));
 				return arrayToArrayOfSignals.get(target);
 			}
 			returnSignal = fullKey === "$length";
@@ -57,7 +64,7 @@ const get =
 			if (!signals.has(key)) {
 				if (shouldProxy(value)) {
 					if (!objToProxy.has(value))
-						objToProxy.set(value, new Proxy(value, objectHandlers));
+						objToProxy.set(value, createProxy(value, objectHandlers));
 					value = objToProxy.get(value);
 				}
 				signals.set(key, signal(value));
@@ -82,7 +89,7 @@ const objectHandlers = {
 			let internal = val;
 			if (shouldProxy(val)) {
 				if (!objToProxy.has(val))
-					objToProxy.set(val, new Proxy(val, objectHandlers));
+					objToProxy.set(val, createProxy(val, objectHandlers));
 				internal = objToProxy.get(val);
 			}
 			if (!signals.has(fullKey)) signals.set(fullKey, signal(internal));
@@ -114,7 +121,7 @@ const shouldProxy = (val: any): boolean => {
 		typeof val.constructor === "function" &&
 		val.constructor.name in globalThis &&
 		(globalThis as any)[val.constructor.name] === val.constructor;
-	return !isBuiltIn || supported.has(val.constructor);
+	return (!isBuiltIn || supported.has(val.constructor)) && !proxies.has(val);
 };
 
 /** TYPES **/
