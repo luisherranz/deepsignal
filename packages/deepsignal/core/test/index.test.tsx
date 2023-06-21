@@ -238,9 +238,88 @@ describe("deepsignal/core", () => {
 			expect(peek(store as any, "$a")).to.equal(undefined);
 			expect(peek(store, "a")).to.equal(1);
 		});
+
+		it("should copy object like plain JavaScript", () => {
+			const store = deepSignal<{
+				a?: { id: number; nested: { id: number } };
+				b: { id: number; nested: { id: number } };
+			}>({
+				b: { id: 1, nested: { id: 1 } },
+			});
+
+			store.a = store.b;
+
+			expect(store.a.id).to.equal(1);
+			expect(store.b.id).to.equal(1);
+			expect(store.a.nested.id).to.equal(1);
+			expect(store.b.nested.id).to.equal(1);
+
+			store.a.id = 2;
+			store.a.nested.id = 2;
+			expect(store.a.id).to.equal(2);
+			expect(store.b.id).to.equal(2);
+			expect(store.a.nested.id).to.equal(2);
+			expect(store.b.nested.id).to.equal(2);
+
+			store.b.id = 3;
+			store.b.nested.id = 3;
+			expect(store.b.id).to.equal(3);
+			expect(store.a.id).to.equal(3);
+			expect(store.a.nested.id).to.equal(3);
+			expect(store.b.nested.id).to.equal(3);
+
+			store.a.id = 4;
+			store.a.nested.id = 4;
+			expect(store.a.id).to.equal(4);
+			expect(store.b.id).to.equal(4);
+			expect(store.a.nested.id).to.equal(4);
+			expect(store.b.nested.id).to.equal(4);
+		});
 	});
 
 	describe("computations", () => {
+		it("should subscribe to changes even when mutating objects", () => {
+			let x, y;
+
+			const store = deepSignal<{
+				a?: { id: number; nested: { id: number } };
+				b: { id: number; nested: { id: number } }[];
+			}>({
+				b: [
+					{ id: 1, nested: { id: 1 } },
+					{ id: 2, nested: { id: 2 } },
+				],
+			});
+
+			effect(() => {
+				x = store.a?.id;
+			});
+
+			effect(() => {
+				y = store.a?.nested.id;
+			});
+
+			expect(x).to.equal(undefined);
+			expect(y).to.equal(undefined);
+
+			store.a = store.b[0];
+
+			expect(x).to.equal(1);
+			expect(y).to.equal(1);
+
+			store.a = store.b[1];
+			expect(x).to.equal(2);
+			expect(y).to.equal(2);
+
+			store.a = undefined;
+			expect(x).to.equal(undefined);
+			expect(y).to.equal(undefined);
+
+			store.a = store.b[1];
+			expect(x).to.equal(2);
+			expect(y).to.equal(2);
+		});
+
 		it("should trigger effects after mutations happen", () => {
 			let x;
 			effect(() => {
@@ -501,12 +580,20 @@ describe("deepsignal/core", () => {
 			expect(store.nested.$b).to.equal(
 				typeof store.array[1] === "object" && store.array[1].$b
 			);
+			expect(store.nested.b).to.equal(22);
+			expect(typeof store.array[1] === "object" && store.array[1].b).to.equal(
+				22
+			);
 
 			store.nested = { b: 222 };
 
 			expect(store.nested).to.not.equal(store.array[1]);
 			expect(store.nested.$b).to.not.equal(
 				typeof store.array[1] === "object" && store.array[1].$b
+			);
+			expect(store.nested.b).to.equal(222);
+			expect(typeof store.array[1] === "object" && store.array[1].b).to.equal(
+				22
 			);
 		});
 
@@ -515,6 +602,11 @@ describe("deepsignal/core", () => {
 			const store1 = deepSignal(state);
 			const store2 = deepSignal(state);
 			expect(store1).to.equal(store2);
+		});
+
+		it("should throw when trying to create a deepsignal of a proxy", () => {
+			const store1 = deepSignal({});
+			expect(() => deepSignal(store1)).to.throw();
 		});
 	});
 
