@@ -1,10 +1,16 @@
 import { Signal, effect, signal } from "@preact/signals-core";
 import { deepSignal, peek } from "deepsignal/core";
 
+type Store = {
+	a?: number;
+	nested: { b?: number };
+	array: (number | Store["nested"])[];
+};
+
 describe("deepsignal/core", () => {
 	let nested = { b: 2 };
 	let array = [3, nested];
-	let state = { a: 1, nested, array };
+	let state: Store = { a: 1, nested, array };
 	let store = deepSignal(state);
 
 	const window = globalThis as any;
@@ -277,8 +283,71 @@ describe("deepsignal/core", () => {
 		});
 	});
 
+	describe("delete", () => {
+		it("should delete properties before they are accessed", () => {
+			delete store.a;
+			expect(store.a).to.equal(undefined);
+		});
+
+		it("should delete properties after they are accessed", () => {
+			expect(store.a).to.equal(1);
+			delete store.a;
+			expect(store.a).to.equal(undefined);
+		});
+
+		it("should delete nested properties before they are accessed", () => {
+			delete store.nested.b;
+			expect(store.nested.b).to.equal(undefined);
+		});
+
+		it("should delete nested properties after they are accessed", () => {
+			expect(store.nested.b).to.equal(2);
+			delete store.nested.b;
+			expect(store.nested.b).to.equal(undefined);
+		});
+
+		it("should delete properties in arrays before they are accessed", () => {
+			delete store.array[0];
+			expect(store.array[0]).to.equal(undefined);
+		});
+
+		it("should delete properties in arrays after they are accessed", () => {
+			expect(store.array[0]).to.equal(3);
+			delete store.array[0];
+			expect(store.array[0]).to.equal(undefined);
+		});
+
+		it("should throw when trying to delete a signal", () => {
+			expect(() => delete store.$a).to.throw();
+		});
+
+		it("should throw when trying to delete the array signals", () => {
+			expect(() => delete store.array.$?.[1]).to.throw();
+		});
+	});
+
 	describe("computations", () => {
-		it("should subscribe to changes even when mutating objects", () => {
+		it("should subscribe to changes when deleting properties", () => {
+			let x, y;
+
+			effect(() => {
+				x = store.a;
+			});
+
+			effect(() => {
+				y = store.nested.b;
+			});
+
+			expect(x).to.equal(1);
+			delete store.a;
+			expect(x).to.equal(undefined);
+
+			expect(y).to.equal(2);
+			delete store.nested.b;
+			expect(y).to.equal(undefined);
+		});
+
+		it("should subscribe to changes when mutating objects", () => {
 			let x, y;
 
 			const store = deepSignal<{

@@ -4,7 +4,7 @@ const proxyToSignals = new WeakMap();
 const objToProxy = new WeakMap();
 const arrayToArrayOfSignals = new WeakMap();
 const proxies = new WeakSet();
-const rg = /^\$\$?/;
+const rg = /^\$/;
 let peeking = false;
 
 export const deepSignal = <T extends object>(obj: T): DeepSignal<T> => {
@@ -31,6 +31,10 @@ const createProxy = (target: object, handlers: ProxyHandler<object>) => {
 	const proxy = new Proxy(target, handlers);
 	proxies.add(proxy);
 	return proxy;
+};
+
+const throwOnMutation = () => {
+	throw new Error("Don't mutate the signals directly.");
 };
 
 const get =
@@ -73,15 +77,13 @@ const get =
 		return returnSignal ? signals.get(key) : signals.get(key).value;
 	};
 
-const mutationError = "Don't mutate the signals directly.";
-
 const objectHandlers = {
 	get: get(false),
-	set(target: object, fullKey: string, val: any, receiver: object) {
+	set(target: object, fullKey: string, val: any, receiver: object): boolean {
 		if (!proxyToSignals.has(receiver)) proxyToSignals.set(receiver, new Map());
 		const signals = proxyToSignals.get(receiver);
 		if (fullKey[0] === "$") {
-			if (!(val instanceof Signal)) throw new Error(mutationError);
+			if (!(val instanceof Signal)) throwOnMutation();
 			const key = fullKey.replace(rg, "");
 			signals.set(key, val);
 			return Reflect.set(target, key, val.peek(), receiver);
@@ -100,13 +102,23 @@ const objectHandlers = {
 			return result;
 		}
 	},
+	deleteProperty(target: object, key: string): boolean {
+		if (key[0] === "$") throwOnMutation();
+		const result = Reflect.deleteProperty(target, key);
+		if (!objToProxy.has(target))
+			objToProxy.set(target, createProxy(target, objectHandlers));
+		const proxy = objToProxy.get(target);
+		if (!proxyToSignals.has(proxy)) return result;
+		const signals = proxyToSignals.get(proxy);
+		if (signals.has(key)) signals.get(key).value = undefined;
+		return result;
+	},
 };
 
 const arrayHandlers = {
 	get: get(true),
-	set() {
-		throw new Error(mutationError);
-	},
+	set: throwOnMutation,
+	deleteProperty: throwOnMutation,
 };
 
 const wellKnownSymbols = new Set(
