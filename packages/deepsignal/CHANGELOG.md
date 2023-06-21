@@ -1,5 +1,13 @@
 # deepsignal
 
+## 1.3.1
+
+### Patch Changes
+
+- [#20](https://github.com/luisherranz/deepsignal/pull/20) [`a945b8a`](https://github.com/luisherranz/deepsignal/commit/a945b8a564502d9ec757024b9d7615734f55e91c) Thanks [@luisherranz](https://github.com/luisherranz)! - Don't proxy existing proxies to make sure that copying refs (objects) works exactly like in plain JavaScript objects.
+
+* [#23](https://github.com/luisherranz/deepsignal/pull/23) [`2285925`](https://github.com/luisherranz/deepsignal/commit/2285925fa3d864650c8d220482806b8ca1922aaf) Thanks [@luisherranz](https://github.com/luisherranz)! - Add support for deleting object properties, like `delete store.a`.
+
 ## 1.3.0
 
 ### Minor Changes
