@@ -104,14 +104,9 @@ const objectHandlers = {
 	},
 	deleteProperty(target: object, key: string): boolean {
 		if (key[0] === "$") throwOnMutation();
-		const result = Reflect.deleteProperty(target, key);
-		if (!objToProxy.has(target))
-			objToProxy.set(target, createProxy(target, objectHandlers));
-		const proxy = objToProxy.get(target);
-		if (!proxyToSignals.has(proxy)) return result;
-		const signals = proxyToSignals.get(proxy);
-		if (signals.has(key)) signals.get(key).value = undefined;
-		return result;
+		const signals = proxyToSignals.get(objToProxy.get(target));
+		if (signals && signals.has(key)) signals.get(key).value = undefined;
+		return Reflect.deleteProperty(target, key);
 	},
 };
 
