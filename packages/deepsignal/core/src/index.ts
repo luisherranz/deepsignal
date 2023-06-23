@@ -272,7 +272,7 @@ type FilterSignals<K> = K extends `$${infer P}` ? never : K;
 type RevertDeepSignalObject<T> = Pick<T, FilterSignals<keyof T>>;
 type RevertDeepSignalArray<T> = Omit<T, "$" | "$length">;
 
-type RevertDeepSignal<T> = T extends Array<unknown>
+export type RevertDeepSignal<T> = T extends Array<unknown>
 	? RevertDeepSignalArray<T>
 	: T extends object
 	? RevertDeepSignalObject<T>

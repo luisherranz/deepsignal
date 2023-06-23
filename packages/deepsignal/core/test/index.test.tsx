@@ -1,5 +1,6 @@
 import { Signal, effect, signal } from "@preact/signals-core";
 import { deepSignal, peek } from "deepsignal/core";
+import type { RevertDeepSignal } from "deepsignal/core";
 
 type Store = {
 	a?: number;
@@ -428,16 +429,20 @@ describe("deepsignal/core", () => {
 
 			effect(() => {
 				values = 0;
-				Object.values(store as typeof state).forEach(value => {
-					values += value;
-				});
+				Object.values(store as RevertDeepSignal<typeof store>).forEach(
+					value => {
+						values += value;
+					}
+				);
 			});
 
 			effect(() => {
 				entries = 0;
-				Object.entries(store as typeof state).forEach(([_, value]) => {
-					entries += value;
-				});
+				Object.entries(store as RevertDeepSignal<typeof store>).forEach(
+					([_, value]) => {
+						entries += value;
+					}
+				);
 			});
 
 			expect(keys).to.equal(3);
