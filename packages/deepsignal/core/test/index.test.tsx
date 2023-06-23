@@ -1,5 +1,6 @@
 import { Signal, effect, signal } from "@preact/signals-core";
 import { deepSignal, peek } from "deepsignal/core";
+import type { RevertDeepSignal } from "deepsignal/core";
 
 type Store = {
 	a?: number;
@@ -322,11 +323,191 @@ describe("deepsignal/core", () => {
 		});
 
 		it("should throw when trying to delete the array signals", () => {
-			expect(() => delete store.array.$?.[1]).to.throw();
+			expect(() => delete store.array.$![1]).to.throw();
+		});
+	});
+
+	describe("ownKeys", () => {
+		it("should return own properties in objects", () => {
+			const state: Record<string, number> = { a: 1, b: 2 };
+			const store = deepSignal(state);
+			let sum = 0;
+
+			for (const property in store) {
+				sum += store[property];
+			}
+
+			expect(sum).to.equal(3);
+		});
+
+		it("should return own properties in arrays", () => {
+			const state: number[] = [1, 2];
+			const store = deepSignal(state);
+			let sum = 0;
+
+			for (const property of store) {
+				sum += property;
+			}
+
+			expect(sum).to.equal(3);
+		});
+
+		it("should spread objects correctly", () => {
+			const store2 = { ...store };
+			expect(store2.a).to.equal(1);
+			expect(store2.nested.b).to.equal(2);
+			expect(store2.array[0]).to.equal(3);
+			expect(typeof store2.array[1] === "object" && store2.array[1].b).to.equal(
+				2
+			);
+		});
+
+		it("should spread arrays correctly", () => {
+			const array2 = [...store.array];
+			expect(array2[0]).to.equal(3);
+			expect(typeof array2[1] === "object" && array2[1].b).to.equal(2);
 		});
 	});
 
 	describe("computations", () => {
+		it("should subscribe to changes when an item is removed from the array", () => {
+			const store = deepSignal([0, 0, 0]);
+			let sum = 0;
+
+			effect(() => {
+				sum = 0;
+				sum = store.reduce(sum => sum + 1, 0);
+			});
+
+			expect(sum).to.equal(3);
+			store.splice(2, 1);
+			expect(sum).to.equal(2);
+		});
+
+		it("should subscribe to changes to for..in loops", () => {
+			const state: Record<string, number> = { a: 0, b: 0 };
+			const store = deepSignal(state);
+			let sum = 0;
+
+			effect(() => {
+				sum = 0;
+				for (const _ in store) {
+					sum += 1;
+				}
+			});
+
+			expect(sum).to.equal(2);
+
+			store.c = 0;
+			expect(sum).to.equal(3);
+
+			delete store.c;
+			expect(sum).to.equal(2);
+
+			store.c = 0;
+			expect(sum).to.equal(3);
+		});
+
+		it("should subscribe to changes for Object.getOwnPropertyNames()", () => {
+			const state: Record<string, number> = { a: 1, b: 2 };
+			const store = deepSignal(state);
+			let sum = 0;
+
+			effect(() => {
+				sum = 0;
+				const keys = Object.getOwnPropertyNames(store);
+				for (const _ of keys) {
+					sum += 1;
+				}
+			});
+
+			expect(sum).to.equal(2);
+
+			store.c = 0;
+			expect(sum).to.equal(3);
+
+			delete store.a;
+			expect(sum).to.equal(2);
+		});
+
+		it("should subscribe to changes to Object.keys/values/entries()", () => {
+			const state: Record<string, number> = { a: 1, b: 2 };
+			const store = deepSignal(state);
+			let keys = 0;
+			let values = 0;
+			let entries = 0;
+
+			effect(() => {
+				keys = 0;
+				Object.keys(store).forEach(() => (keys += 1));
+			});
+
+			effect(() => {
+				values = 0;
+				Object.values(store as RevertDeepSignal<typeof store>).forEach(
+					() => (values += 1)
+				);
+			});
+
+			effect(() => {
+				entries = 0;
+				Object.entries(store as RevertDeepSignal<typeof store>).forEach(
+					() => (entries += 1)
+				);
+			});
+
+			expect(keys).to.equal(2);
+			expect(values).to.equal(2);
+			expect(entries).to.equal(2);
+
+			store.c = 0;
+			expect(keys).to.equal(3);
+			expect(values).to.equal(3);
+			expect(entries).to.equal(3);
+
+			delete store.a;
+			expect(keys).to.equal(2);
+			expect(values).to.equal(2);
+			expect(entries).to.equal(2);
+		});
+
+		it("should subscribe to changes to for..of loops", () => {
+			const store = deepSignal([0, 0]);
+			let sum = 0;
+
+			effect(() => {
+				sum = 0;
+				for (const _ of store) {
+					sum += 1;
+				}
+			});
+
+			expect(sum).to.equal(2);
+
+			store.push(0);
+			expect(sum).to.equal(3);
+
+			store.splice(0, 1);
+			expect(sum).to.equal(2);
+		});
+
+		it("should subscribe to implicit changes in length", () => {
+			const store = deepSignal(["foo", "bar"]);
+			let x = "";
+
+			effect(() => {
+				x = store.join(" ");
+			});
+
+			expect(x).to.equal("foo bar");
+
+			store.push("baz");
+			expect(x).to.equal("foo bar baz");
+
+			store.splice(0, 1);
+			expect(x).to.equal("bar baz");
+		});
+
 		it("should subscribe to changes when deleting properties", () => {
 			let x, y;
 

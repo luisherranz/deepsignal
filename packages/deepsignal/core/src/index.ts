@@ -4,6 +4,7 @@ const proxyToSignals = new WeakMap();
 const objToProxy = new WeakMap();
 const arrayToArrayOfSignals = new WeakMap();
 const proxies = new WeakSet();
+const objToIterable = new WeakMap();
 const rg = /^\$/;
 let peeking = false;
 
@@ -94,9 +95,11 @@ const objectHandlers = {
 					objToProxy.set(val, createProxy(val, objectHandlers));
 				internal = objToProxy.get(val);
 			}
+			const isNew = !(fullKey in target);
+			const result = Reflect.set(target, fullKey, val, receiver);
 			if (!signals.has(fullKey)) signals.set(fullKey, signal(internal));
 			else signals.get(fullKey).value = internal;
-			const result = Reflect.set(target, fullKey, val, receiver);
+			if (isNew && objToIterable.has(target)) objToIterable.get(target).value++;
 			if (Array.isArray(target) && signals.has("length"))
 				signals.get("length").value = target.length;
 			return result;
@@ -105,8 +108,15 @@ const objectHandlers = {
 	deleteProperty(target: object, key: string): boolean {
 		if (key[0] === "$") throwOnMutation();
 		const signals = proxyToSignals.get(objToProxy.get(target));
+		const result = Reflect.deleteProperty(target, key);
 		if (signals && signals.has(key)) signals.get(key).value = undefined;
-		return Reflect.deleteProperty(target, key);
+		objToIterable.has(target) && objToIterable.get(target).value++;
+		return result;
+	},
+	ownKeys(target: object): (string | symbol)[] {
+		if (!objToIterable.has(target)) objToIterable.set(target, signal(0));
+		objToIterable.get(target).value;
+		return Reflect.ownKeys(target);
 	},
 };
 
@@ -260,7 +270,7 @@ type FilterSignals<K> = K extends `$${infer P}` ? never : K;
 type RevertDeepSignalObject<T> = Pick<T, FilterSignals<keyof T>>;
 type RevertDeepSignalArray<T> = Omit<T, "$" | "$length">;
 
-type RevertDeepSignal<T> = T extends Array<unknown>
+export type RevertDeepSignal<T> = T extends Array<unknown>
 	? RevertDeepSignalArray<T>
 	: T extends object
 	? RevertDeepSignalObject<T>

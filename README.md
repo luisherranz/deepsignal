@@ -10,14 +10,14 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
 ---
 
 - Try it on Stackblitz
-  - [Preact](https://stackblitz.com/edit/vitejs-vite-6qfchy?file=src%2Fmain.jsx) 
-  - [Preact & TypeScript](https://stackblitz.com/edit/vitejs-vite-hktyyf?file=src%2Fmain.tsx) 
-  - [React](https://stackblitz.com/edit/vitejs-vite-zoh464?file=src%2Fmain.jsx) 
-  - [React & TypeScript](https://stackblitz.com/edit/vitejs-vite-r2stgq?file=src%2Fmain.tsx) 
+  - [Preact](https://stackblitz.com/edit/vitejs-vite-6qfchy?file=src%2Fmain.jsx)
+  - [Preact & TypeScript](https://stackblitz.com/edit/vitejs-vite-hktyyf?file=src%2Fmain.tsx)
+  - [React](https://stackblitz.com/edit/vitejs-vite-zoh464?file=src%2Fmain.jsx)
+  - [React & TypeScript](https://stackblitz.com/edit/vitejs-vite-r2stgq?file=src%2Fmain.tsx)
 - Or on Codesandbox
-  - [Preact](https://codesandbox.io/s/deepsignal-demo-hv1i1p) 
-  - [Preact & TypeScript](https://codesandbox.io/s/deepsignal-demo-typescript-os7ox0?file=/src/index.tsx) 
-  - [React](https://codesandbox.io/s/deepsignal-demo-react-fupt1x?file=/src/index.js) 
+  - [Preact](https://codesandbox.io/s/deepsignal-demo-hv1i1p)
+  - [Preact & TypeScript](https://codesandbox.io/s/deepsignal-demo-typescript-os7ox0?file=/src/index.tsx)
+  - [React](https://codesandbox.io/s/deepsignal-demo-react-fupt1x?file=/src/index.js)
   - [React & TypeScript](https://codesandbox.io/s/deepsignal-demo-react-typescript-jszfjw?file=/src/index.tsx)
 
 ---
@@ -425,6 +425,18 @@ console.log(array.$![0].value); // 1
 ```
 
 Note that here the position of the non-null assertion operator changes because `array.$` is an object in itself.
+
+### DeepSignal and RevertDeepSignal types
+
+DeepSignal exports two types, one to convert from a raw state/store to a `deepSignal` instance, and other to revert from a `deepSignal` instance back to the raw store.
+
+These types are handy when manual casting is needed, like when you try to use `Object.values()`:
+
+```ts
+import type { RevertDeepSignal } from "deepsignal";
+
+const values = Object.values(store as RevertDeepSignal<typeof store>);
+```
 
 ## License
 

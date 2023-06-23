@@ -36,7 +36,10 @@
 			"browser": "./react/dist/deepsignal-react.module.js",
 			"import": "./react/dist/deepsignal-react.mjs",
 			"require": "./react/dist/deepsignal-react.js"
-		}
+		},
+		"./package.json": "./package.json",
+		"./core/package.json": "./core/package.json",
+		"./react/package.json": "./react/package.json"
 	},
 	"scripts": {
 		"prepublishOnly": "cp ../../README.md . && cd ../.. && pnpm build"
