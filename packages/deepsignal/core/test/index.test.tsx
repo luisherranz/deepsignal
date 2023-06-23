@@ -401,8 +401,11 @@ describe("deepsignal/core", () => {
 			store.c = 0;
 			expect(sum).to.equal(3);
 
-			delete store.a;
+			delete store.c;
 			expect(sum).to.equal(2);
+
+			store.c = 0;
+			expect(sum).to.equal(3);
 		});
 
 		it("should subscribe to changes for Object.getOwnPropertyNames()", () => {
