@@ -370,6 +370,20 @@ describe("deepsignal/core", () => {
 	});
 
 	describe("computations", () => {
+		it("should subscribe to changes when an item is removed from the array", () => {
+			const store = deepSignal([1, 2, 3]);
+			let sum = 0;
+
+			effect(() => {
+				sum = 0;
+				sum = store.reduce((sum, item) => sum + item, 0);
+			});
+
+			expect(sum).to.equal(6);
+			store.splice(2, 1);
+			expect(sum).to.equal(3);
+		});
+
 		it("should subscribe to changes to for..in loops", () => {
 			const state: Record<string, number> = { a: 1, b: 2 };
 			const store = deepSignal(state);
