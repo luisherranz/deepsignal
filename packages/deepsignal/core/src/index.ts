@@ -97,9 +97,8 @@ const objectHandlers = {
 			}
 			const isNew = !(fullKey in target);
 			const result = Reflect.set(target, fullKey, val, receiver);
-			if (!signals.has(fullKey)) {
-				signals.set(fullKey, signal(internal));
-			} else signals.get(fullKey).value = internal;
+			if (!signals.has(fullKey)) signals.set(fullKey, signal(internal));
+			else signals.get(fullKey).value = internal;
 			if (isNew && objToIterable.has(target)) objToIterable.get(target).value++;
 			if (Array.isArray(target) && signals.has("length"))
 				signals.get("length").value = target.length;
