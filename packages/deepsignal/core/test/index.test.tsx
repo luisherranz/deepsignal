@@ -371,38 +371,38 @@ describe("deepsignal/core", () => {
 
 	describe("computations", () => {
 		it("should subscribe to changes when an item is removed from the array", () => {
-			const store = deepSignal([1, 2, 3]);
+			const store = deepSignal([0, 0, 0]);
 			let sum = 0;
 
 			effect(() => {
 				sum = 0;
-				sum = store.reduce((sum, item) => sum + item, 0);
+				sum = store.reduce(sum => sum + 1, 0);
 			});
 
-			expect(sum).to.equal(6);
-			store.splice(2, 1);
 			expect(sum).to.equal(3);
+			store.splice(2, 1);
+			expect(sum).to.equal(2);
 		});
 
 		it("should subscribe to changes to for..in loops", () => {
-			const state: Record<string, number> = { a: 1, b: 2 };
+			const state: Record<string, number> = { a: 0, b: 0 };
 			const store = deepSignal(state);
 			let sum = 0;
 
 			effect(() => {
 				sum = 0;
-				for (const key in store) {
-					sum += store[key];
+				for (const _ in store) {
+					sum += 1;
 				}
 			});
 
+			expect(sum).to.equal(2);
+
+			store.c = 0;
 			expect(sum).to.equal(3);
 
-			store.c = 3;
-			expect(sum).to.equal(6);
-
 			delete store.a;
-			expect(sum).to.equal(5);
+			expect(sum).to.equal(2);
 		});
 
 		it("should subscribe to changes for Object.getOwnPropertyNames()", () => {
@@ -413,18 +413,18 @@ describe("deepsignal/core", () => {
 			effect(() => {
 				sum = 0;
 				const keys = Object.getOwnPropertyNames(store);
-				for (const key of keys) {
-					sum += store[key];
+				for (const _ of keys) {
+					sum += 1;
 				}
 			});
 
+			expect(sum).to.equal(2);
+
+			store.c = 0;
 			expect(sum).to.equal(3);
 
-			store.c = 3;
-			expect(sum).to.equal(6);
-
 			delete store.a;
-			expect(sum).to.equal(5);
+			expect(sum).to.equal(2);
 		});
 
 		it("should subscribe to changes to Object.keys/values/entries()", () => {
@@ -436,62 +436,56 @@ describe("deepsignal/core", () => {
 
 			effect(() => {
 				keys = 0;
-				Object.keys(store).forEach(key => {
-					keys += store[key];
-				});
+				Object.keys(store).forEach(() => (keys += 1));
 			});
 
 			effect(() => {
 				values = 0;
 				Object.values(store as RevertDeepSignal<typeof store>).forEach(
-					value => {
-						values += value;
-					}
+					() => (values += 1)
 				);
 			});
 
 			effect(() => {
 				entries = 0;
 				Object.entries(store as RevertDeepSignal<typeof store>).forEach(
-					([_, value]) => {
-						entries += value;
-					}
+					() => (entries += 1)
 				);
 			});
 
+			expect(keys).to.equal(2);
+			expect(values).to.equal(2);
+			expect(entries).to.equal(2);
+
+			store.c = 0;
 			expect(keys).to.equal(3);
 			expect(values).to.equal(3);
 			expect(entries).to.equal(3);
 
-			store.c = 3;
-			expect(keys).to.equal(6);
-			expect(values).to.equal(6);
-			expect(entries).to.equal(6);
-
 			delete store.a;
-			expect(keys).to.equal(5);
-			expect(values).to.equal(5);
-			expect(entries).to.equal(5);
+			expect(keys).to.equal(2);
+			expect(values).to.equal(2);
+			expect(entries).to.equal(2);
 		});
 
 		it("should subscribe to changes to for..of loops", () => {
-			const store = deepSignal([1, 2]);
+			const store = deepSignal([0, 0]);
 			let sum = 0;
 
 			effect(() => {
 				sum = 0;
-				for (const value of store) {
-					sum += value;
+				for (const _ of store) {
+					sum += 1;
 				}
 			});
 
+			expect(sum).to.equal(2);
+
+			store.push(0);
 			expect(sum).to.equal(3);
 
-			store.push(3);
-			expect(sum).to.equal(6);
-
 			store.splice(0, 1);
-			expect(sum).to.equal(5);
+			expect(sum).to.equal(2);
 		});
 
 		it("should subscribe to implicit changes in length", () => {

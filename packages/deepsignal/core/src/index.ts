@@ -109,10 +109,8 @@ const objectHandlers = {
 		if (key[0] === "$") throwOnMutation();
 		const signals = proxyToSignals.get(objToProxy.get(target));
 		const result = Reflect.deleteProperty(target, key);
-		if (signals && signals.has(key)) {
-			signals.get(key).value = undefined;
-			objToIterable.has(target) && objToIterable.get(target).value++;
-		}
+		if (signals && signals.has(key)) signals.get(key).value = undefined;
+		objToIterable.has(target) && objToIterable.get(target).value++;
 		return result;
 	},
 	ownKeys(target: object): (string | symbol)[] {
