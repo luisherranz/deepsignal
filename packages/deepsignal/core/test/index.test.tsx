@@ -323,7 +323,7 @@ describe("deepsignal/core", () => {
 		});
 
 		it("should throw when trying to delete the array signals", () => {
-			expect(() => delete store.array.$?.[1]).to.throw();
+			expect(() => delete store.array.$![1]).to.throw();
 		});
 	});
 
@@ -466,8 +466,8 @@ describe("deepsignal/core", () => {
 
 			effect(() => {
 				sum = 0;
-				for (const property of store) {
-					sum += !!property ? property : 0;
+				for (const value of store) {
+					sum += value;
 				}
 			});
 
