@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.3.2
+
+### Patch Changes
+
+- [#26](https://github.com/luisherranz/deepsignal/pull/26) [`afeacef`](https://github.com/luisherranz/deepsignal/commit/afeacef1f1f1cf6f2f936f20faee38a225aeb2ff) Thanks [@luisherranz](https://github.com/luisherranz)! - Add support for the `ownKeys` trap, which is used with `for..in`, `getOwnPropertyNames` or `Object.keys/values/entries`.
+
 ## 1.3.1
 
 ### Patch Changes
