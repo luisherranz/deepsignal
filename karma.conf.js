@@ -83,7 +83,7 @@ function createEsbuildPlugin() {
 
 			// Aliasing: If "MINIFY" is set to "true" we use the dist/
 			// files instead of those from src/
-			build.onResolve({ filter: /^@preact\/.*/ }, args => {
+			build.onResolve({ filter: /^deepsignal\/.*/ }, args => {
 				const pkg = alias[args.path];
 				return {
 					path: pkg,
