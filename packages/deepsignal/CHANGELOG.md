@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.3.3
+
+### Patch Changes
+
+- [#28](https://github.com/luisherranz/deepsignal/pull/28) [`cf226ba`](https://github.com/luisherranz/deepsignal/commit/cf226ba88fe92df89c93540e017926784a58de30) Thanks [@luisherranz](https://github.com/luisherranz)! - Fix production tests and a couple of problems in production with `peek` and the `ownKeys` trap.
+
 ## 1.3.2
 
 ### Patch Changes
