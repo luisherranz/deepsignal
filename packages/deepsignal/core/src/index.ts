@@ -24,7 +24,9 @@ export const peek = <
 ): RevertDeepSignal<RevertDeepSignalObject<T>[K]> => {
 	peeking = true;
 	const value = obj[key];
-	peeking = false;
+	try {
+		peeking = false;
+	} catch (e) {}
 	return value as RevertDeepSignal<RevertDeepSignalObject<T>[K]>;
 };
 
