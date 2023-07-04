@@ -117,7 +117,7 @@ const objectHandlers = {
 	},
 	ownKeys(target: object): (string | symbol)[] {
 		if (!objToIterable.has(target)) objToIterable.set(target, signal(0));
-		objToIterable.get(target).value = objToIterable.get(target).value;
+		(objToIterable as any)._ = objToIterable.get(target).value;
 		return Reflect.ownKeys(target);
 	},
 };
