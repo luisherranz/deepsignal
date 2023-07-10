@@ -66,6 +66,20 @@ describe("deepsignal/core", () => {
 			expect(store.aOrB.data).to.equal("b");
 		});
 
+		it("should support getters using ownKeys traps", () => {
+			const state = deepSignal({
+				x: {
+					a: 1,
+					b: 2,
+				},
+				get y() {
+					return Object.values(state.x);
+				},
+			});
+
+			expect(state.y).to.deep.equal([1, 2]);
+		});
+
 		it("should work with normal functions", () => {
 			const store = deepSignal({
 				value: 1,

@@ -45,9 +45,9 @@
 		"prepublishOnly": "cp ../../README.md . && cd ../.. && pnpm build"
 	},
 	"dependencies": {
-		"@preact/signals-core": "^1.0.0",
-		"@preact/signals": "^1.0.0",
-		"@preact/signals-react": "^1.0.0"
+		"@preact/signals-core": "^1.3.1",
+		"@preact/signals": "^1.1.4",
+		"@preact/signals-react": "^1.3.3"
 	},
 	"peerDependencies": {
 		"preact": "10.x"
