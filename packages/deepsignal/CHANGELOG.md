@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.3.4
+
+### Patch Changes
+
+- [`a846d10`](https://github.com/luisherranz/deepsignal/commit/a846d10ae776d3d77ffc8c4d28b63eafa1662b1b) Thanks [@luisherranz](https://github.com/luisherranz)! - Avoid side-effects on the `ownKeys` trap.
+
 ## 1.3.3
 
 ### Patch Changes
