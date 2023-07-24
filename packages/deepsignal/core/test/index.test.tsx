@@ -1,5 +1,5 @@
 import { Signal, effect, signal } from "@preact/signals-core";
-import { deepSignal, peek } from "deepsignal/core";
+import { deepSignal, peek, shallow } from "deepsignal/core";
 import type { RevertDeepSignal } from "deepsignal/core";
 
 type Store = {
@@ -963,6 +963,78 @@ describe("deepsignal/core", () => {
 			state[key] = true;
 			expect(state[key]).to.equal(true);
 			expect(x).to.equal(undefined);
+		});
+	});
+
+	describe("shallow", () => {
+		it("should not proxy shallow objects", () => {
+			const shallowObj1 = { a: 1 };
+			let shallowObj2 = { b: 2 };
+			const deepObj = { c: 3 };
+			shallowObj2 = shallow(shallowObj2);
+			const store = deepSignal({
+				shallowObj1: shallow(shallowObj1),
+				shallowObj2,
+				deepObj,
+			});
+			expect(store.shallowObj1.a).to.equal(1);
+			expect(store.shallowObj2.b).to.equal(2);
+			expect(store.deepObj.c).to.equal(3);
+			expect(store.shallowObj1).to.equal(shallowObj1);
+			expect(store.shallowObj2).to.equal(shallowObj2);
+			expect(store.deepObj).to.not.equal(deepObj);
+		});
+
+		it("should not proxy shallow objects if shallow is called before access", () => {
+			const shallowObj1 = { a: 1 };
+			const shallowObj2 = { b: 2 };
+			const deepObj = { c: 3 };
+			const store = deepSignal({ shallowObj1, shallowObj2, deepObj });
+			shallow(shallowObj1);
+			shallow(store, "shallowObj2");
+			expect(store.shallowObj1.a).to.equal(1);
+			expect(store.shallowObj2.b).to.equal(2);
+			expect(store.deepObj.c).to.equal(3);
+			expect(store.shallowObj1).to.equal(shallowObj1);
+			expect(store.shallowObj2).to.equal(shallowObj2);
+			expect(store.deepObj).to.not.equal(deepObj);
+		});
+
+		it("should not proxy shallow objects if shallow is called before access using the deepsignal", () => {
+			const shallowObj = { a: 1 };
+			const deepObj = { b: 2 };
+			const store = deepSignal({ shallowObj, deepObj });
+			shallow(store, "shallowObj");
+			expect(store.shallowObj.a).to.equal(1);
+			expect(store.deepObj.b).to.equal(2);
+			expect(store.shallowObj).to.equal(shallowObj);
+			expect(store.deepObj).to.not.equal(deepObj);
+		});
+
+		it("should observe changes in the shallow object", () => {
+			const obj = { a: 1 };
+			const shallowObj = shallow(obj);
+			const store = deepSignal({ shallowObj });
+			let x;
+			effect(() => {
+				x = store.shallowObj.a;
+			});
+			expect(x).to.equal(1);
+			store.shallowObj = { a: 2 };
+			expect(x).to.equal(2);
+		});
+
+		it("should not observe changes in the props of the shallow object", () => {
+			const obj = { a: 1 };
+			const shallowObj = shallow(obj);
+			const store = deepSignal({ shallowObj });
+			let x;
+			effect(() => {
+				x = store.shallowObj.a;
+			});
+			expect(x).to.equal(1);
+			store.shallowObj.a = 2;
+			expect(x).to.equal(1);
 		});
 	});
 });
