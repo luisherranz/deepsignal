@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.4.0-shallow.0
+
+### Minor Changes
+
+- [`18a098e`](https://github.com/luisherranz/deepsignal/commit/18a098e6671061ef5830fc89f6dee364f414573d) Thanks [@luisherranz](https://github.com/luisherranz)! - Support storing shallow objects as part of the deepsignal with `shallow`.
+
 ## 1.3.4
 
 ### Patch Changes
