@@ -59,11 +59,13 @@ The most important feature is that **it just works**. You don't need to do anyth
 
 ## Installation
 
+### With Preact
+
 ```sh
-npm install deepsignal
+npm install deepsignal @preact/signals
 ```
 
-If you are using `deepsignal` with Preact (`@preact/signals`), you should use the `deepsignal` import. You don't need to install or import `@preact/signals` anywhere in your code if you don't need it.
+If you are using `deepsignal` with Preact (`@preact/signals`), you should use the `deepsignal` import. You also need to install `@preact/signals`.
 
 ```js
 import { deepSignal } from "deepsignal";
@@ -73,7 +75,11 @@ const state = deepSignal({});
 
 ### With React
 
-If you are using the library with React, you should use the `deepsignal/react` import. You don't need to install or import `@preact/signals-react` anywhere in your code if you don't need it.
+```sh
+npm install deepsignal @preact/signals-react
+```
+
+If you are using the library with React, you should use the `deepsignal/react` import. You also need to install `@preact/signals-react`.
 
 ```js
 import { deepSignal } from "deepsignal/react";
@@ -83,7 +89,11 @@ const state = deepSignal({});
 
 ### Without Preact/React
 
-If you are using the library just with `@preact/signals-core`, you should use the `deepsignal/core` import.
+```sh
+npm install deepsignal @preact/signals-core
+```
+
+If you are using the library just with `@preact/signals-core`, you should use the `deepsignal/core` import. You also need to install `@preact/signals-core`.
 
 ```js
 import { deepSignal } from "deepsignal/core";
