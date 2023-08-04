@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.3.6
+
+### Patch Changes
+
+- [#42](https://github.com/luisherranz/deepsignal/pull/42) [`79db35b`](https://github.com/luisherranz/deepsignal/commit/79db35bebe4002c5d4e4ad77156b9ba609e14633) Thanks [@luisherranz](https://github.com/luisherranz)! - Add `preact` as peer dependency back and mark them as optional.
+
 ## 1.3.5
 
 ### Patch Changes
