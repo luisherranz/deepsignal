@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.3.5
+
+### Patch Changes
+
+- [#40](https://github.com/luisherranz/deepsignal/pull/40) [`6284cd6`](https://github.com/luisherranz/deepsignal/commit/6284cd6db785a4ec48a6e2987fd6ea745cc36bdd) Thanks [@luisherranz](https://github.com/luisherranz)! - Use `@preact/signals` dependencies as peer dependencies.
+
 ## 1.3.4
 
 ### Patch Changes
