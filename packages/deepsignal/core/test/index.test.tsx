@@ -874,11 +874,18 @@ describe("deepsignal/core", () => {
 		});
 	});
 
-	describe("built-ins", () => {
-		it("should throw when trying to deepsignal a built-in", () => {
-			window.MyClass = class MyClass {};
-			const obj = new window.MyClass();
+	describe("unsupported data structures", () => {
+		it("should throw when trying to deepsignal a class instance", () => {
+			class MyClass {}
+			const obj = new MyClass();
 			expect(() => deepSignal(obj)).to.throw();
+		});
+
+		it("should not wrap a class instance", () => {
+			class MyClass {}
+			const obj = new MyClass();
+			const store = deepSignal({ obj });
+			expect(store.obj).to.equal(obj);
 		});
 
 		it("should not wrap built-ins in proxies", () => {
@@ -903,19 +910,19 @@ describe("deepsignal/core", () => {
 			expect(store.$b.value).to.equal(2);
 		});
 
-		it("should not wrap Date", () => {
+		it("should not wrap dates", () => {
 			const date = new Date();
 			const store = deepSignal({ date });
 			expect(store.date).to.equal(date);
 		});
 
-		it("should not wrap RegExp", () => {
+		it("should not wrap regular expressions", () => {
 			const regex = new RegExp("");
 			const store = deepSignal({ regex });
 			expect(store.regex).to.equal(regex);
 		});
 
-		it("should not wrap Maps", () => {
+		it("should not wrap Map", () => {
 			const map = new Map();
 			const store = deepSignal({ map });
 			expect(store.map).to.equal(map);
@@ -925,13 +932,6 @@ describe("deepsignal/core", () => {
 			const set = new Set();
 			const store = deepSignal({ set });
 			expect(store.set).to.equal(set);
-		});
-
-		it("should not wrap built-ins in proxies", () => {
-			window.MyClass = class MyClass {};
-			const obj = new window.MyClass();
-			const store = deepSignal({ obj });
-			expect(store.obj).to.equal(obj);
 		});
 	});
 

@@ -149,11 +149,7 @@ const wellKnownSymbols = new Set(
 const supported = new Set([Object, Array]);
 const shouldProxy = (val: any): boolean => {
 	if (typeof val !== "object" || val === null) return false;
-	const isBuiltIn =
-		typeof val.constructor === "function" &&
-		val.constructor.name in globalThis &&
-		(globalThis as any)[val.constructor.name] === val.constructor;
-	return (!isBuiltIn || supported.has(val.constructor)) && !ignore.has(val);
+	return supported.has(val.constructor) && !ignore.has(val);
 };
 
 /** TYPES **/
