@@ -37,6 +37,8 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [`peek(state, "prop")`](#peekstate-prop)
     - [`state.$prop = signal(value)`](#stateprop--signalvalue)
     - [`useDeepSignal`](#usedeepsignal)
+  - [Common Patterns](#common-patterns)
+    - [Resetting the store](#resetting-the-store)
   - [When do you need access to signals?](#when-do-you-need-access-to-signals)
     - [Passing the value of a signal directly to JSX](#passing-the-value-of-a-signal-directly-to-jsx)
     - [Passing a signal to a child component](#passing-a-signal-to-a-child-component)
@@ -47,7 +49,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
 
 ## Features
 
-- **Transparent**: `deepsignal` wraps the objects with proxies that intercept all property accesses, but does not modify the object. This means that you can still use the object as you normally would, and it will behave exactly as expected. Mutating the object updates the value of the underlying signals.
+- **Transparent**: `deepsignal` wraps the object with a proxy that intercepts all property accesses, but does not modify how you interact with the object. This means that you can still use the object as you normally would, and it will behave exactly as you would expect, except that mutating the object also updates the value of the underlying signals.
 - **Tiny (less than 1kB)**: `deepsignal` is designed to be lightweight and has a minimal footprint, making it easy to include in your projects. It's just a small wrapper around `@preact/signals-core`.
 - **Full array support**: `deepsignal` fully supports arrays, including nested arrays.
 - **Deep**: `deepsignal` converts nested objects and arrays to deep signal objects/arrays, allowing you to create fully reactive data structures.
@@ -308,7 +310,7 @@ _For primitive values, you can get away with using `store.$prop.peek()` instead 
 
 ### `state.$prop = signal(value)`
 
-You can modify the underlying signal of an object's property doing an assignment to the `$`-prefixed name.
+You can modify the underlying signal of an object's property by doing an assignment to the `$`-prefixed name.
 
 ```js
 const state = deepSignal({ counter: 0 });
@@ -349,6 +351,28 @@ function Counter() {
 	);
 }
 ```
+
+## Common Patterns
+
+### Resetting the store
+
+If you need to reset your store to some initial values, don't overwrite the reference. Instead, replace each value using something like `Object.assign`.
+
+```js
+const initialState = { counter: 0 };
+
+const store = deepSignal({
+	...initialState,
+	inc: () => {
+		store.counter++;
+	},
+	reset: () => {
+		Object.assign(store, initialState);
+	},
+});
+```
+
+Take into account that the object that you pass to `deepSignal` during the creation is also mutated when you mutate the deep signal. Therefore, if you need to keep a set of initial values, you need to store them in a different object or clone it before assigning it to the deepsignal.
 
 ## When do you need access to signals?
 
@@ -448,7 +472,7 @@ You can use the `DeepSignal` type if you want to declare your type instead of in
 import type { DeepSignal } from "deepsignal";
 
 type Store = DeepSignal<{
-  counter: boolean;
+	counter: boolean;
 }>;
 
 const store = deepSignal<Store>({ counter: 0 });
@@ -456,7 +480,7 @@ const store = deepSignal<Store>({ counter: 0 });
 
 ### RevertDeepSignal
 
-You can use the `RevertDeepSignal` type if you want to recover the type of the plain object/array using the type of the `deepSignal` instance, like for example when you need to use `Object.values()`.
+You can use the `RevertDeepSignal` type if you want to recover the type of the plain object/array using the type of the `deepSignal` instance. For example, when you need to use `Object.values()`.
 
 ```ts
 import type { RevertDeepSignal } from "deepsignal";
