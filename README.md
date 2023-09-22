@@ -41,6 +41,8 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [Passing the value of a signal directly to JSX](#passing-the-value-of-a-signal-directly-to-jsx)
     - [Passing a signal to a child component](#passing-a-signal-to-a-child-component)
   - [TypeScript](#typescript)
+    - [`DeepSignal`](#deepsignal-1)
+    - [`RevertDeepSignal`](#revertdeepsignal)
   - [License](#license)
 
 ## Features
@@ -436,11 +438,25 @@ console.log(array.$![0].value); // 1
 
 Note that here the position of the non-null assertion operator changes because `array.$` is an object in itself.
 
-### DeepSignal and RevertDeepSignal types
+DeepSignal exports two types, one to convert from a plain object/array to a `deepSignal` instance, and other to revert from a `deepSignal` instance back to the plain object/array.
 
-DeepSignal exports two types, one to convert from a raw state/store to a `deepSignal` instance, and other to revert from a `deepSignal` instance back to the raw store.
+### DeepSignal
 
-These types are handy when manual casting is needed, like when you try to use `Object.values()`:
+You can use the `DeepSignal` type if you want to declare your type instead of inferring it.
+
+```ts
+import type { DeepSignal } from "deepsignal";
+
+type Store = DeepSignal<{
+  counter: boolean;
+}>;
+
+const store = deepSignal<Store>({ counter: 0 });
+```
+
+### RevertDeepSignal
+
+You can use the `RevertDeepSignal` type if you want to recover the type of the plain object/array using the type of the `deepSignal` instance, like for example when you need to use `Object.values()`.
 
 ```ts
 import type { RevertDeepSignal } from "deepsignal";
