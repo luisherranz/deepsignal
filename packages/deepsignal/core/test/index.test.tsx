@@ -296,6 +296,16 @@ describe("deepsignal/core", () => {
 			expect(store.a.nested.id).to.equal(4);
 			expect(store.b.nested.id).to.equal(4);
 		});
+
+		it.only("should be able to reset values with Object.assign", () => {
+			const initialNested = { ...nested };
+			const initialState = { ...state, nested: initialNested };
+			store.a = 2;
+			store.nested.b = 3;
+			Object.assign(store, initialState);
+			expect(store.a).to.equal(1);
+			expect(store.nested.b).to.equal(2);
+		});
 	});
 
 	describe("delete", () => {
