@@ -764,6 +764,30 @@ describe("deepsignal/core", () => {
 			expect(spy1).callCount(4);
 			expect(spy2).callCount(4);
 		});
+
+		it("should be able to reset values with Object.assign and still react to changes", () => {
+			const initialNested = { ...nested };
+			const initialState = { ...state, nested: initialNested };
+			let a, b;
+
+			effect(() => {
+				a = store.a;
+			});
+			effect(() => {
+				b = store.nested.b;
+			});
+
+			store.a = 2;
+			store.nested.b = 3;
+
+			expect(a).to.equal(2);
+			expect(b).to.equal(3);
+
+			Object.assign(store, initialState);
+
+			expect(a).to.equal(1);
+			expect(b).to.equal(2);
+		});
 	});
 
 	describe("peek", () => {
