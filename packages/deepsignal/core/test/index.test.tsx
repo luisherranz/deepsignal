@@ -297,7 +297,7 @@ describe("deepsignal/core", () => {
 			expect(store.b.nested.id).to.equal(4);
 		});
 
-		it.only("should be able to reset values with Object.assign", () => {
+		it("should be able to reset values with Object.assign", () => {
 			const initialNested = { ...nested };
 			const initialState = { ...state, nested: initialNested };
 			store.a = 2;
