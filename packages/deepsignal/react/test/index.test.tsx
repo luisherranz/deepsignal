@@ -6,24 +6,28 @@ import { createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { useDeepSignal, type DeepSignal } from "deepsignal/react";
-import "@preact/signals/auto";
 
 describe("deepsignal/react", () => {
 	let scratch: HTMLDivElement;
 	let root: Root;
-	function render(element: Parameters<Root["render"]>[0]) {
-		act(() => root.render(element));
-	}
+	let render: Root["render"];
 
-	const window = globalThis as any;
+	beforeEach(async () => {
+		scratch = document.createElement("div");
+		document.body.appendChild(scratch);
 
-	beforeEach(() => {
-		scratch = window.document.createElement("div");
-		root = createRoot(scratch);
+		const realRoot = createRoot(scratch);
+		root = {
+			render: element => act(() => realRoot.render(element)),
+			unmount: () => act(() => realRoot.unmount()),
+		};
+
+		render = root.render.bind(root);
 	});
 
 	afterEach(() => {
 		act(() => root.unmount());
+		scratch.remove();
 	});
 
 	describe("useDeepSignal", () => {
@@ -38,7 +42,7 @@ describe("deepsignal/react", () => {
 			}
 
 			// @ts-ignore
-			render(<App />);
+			await render(<App />);
 
 			expect(scratch.textContent).to.equal("test");
 			expect(spy).to.be.calledOnce;
