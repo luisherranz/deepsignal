@@ -14,6 +14,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
   - [Preact & TypeScript](https://stackblitz.com/edit/vitejs-vite-hktyyf?file=src%2Fmain.tsx)
   - [React](https://stackblitz.com/edit/vitejs-vite-zoh464?file=src%2Fmain.jsx)
   - [React & TypeScript](https://stackblitz.com/edit/vitejs-vite-r2stgq?file=src%2Fmain.tsx)
+  - [Lit](https://stackblitz.com/edit/lit-and-deepsignal?file=src%2Fmy-element.js)
 - Or on Codesandbox
   - [Preact](https://codesandbox.io/s/deepsignal-demo-hv1i1p)
   - [Preact & TypeScript](https://codesandbox.io/s/deepsignal-demo-typescript-os7ox0?file=/src/index.tsx)
@@ -74,7 +75,11 @@ If you are using `deepsignal` with Preact (`@preact/signals`), you should use th
 ```js
 import { deepSignal } from "deepsignal";
 
-const state = deepSignal({});
+const state = deepSignal({
+	count: 0,
+});
+
+const Count = () => <div>{state.$count}</div>;
 ```
 
 ### With React
@@ -83,18 +88,47 @@ const state = deepSignal({});
 npm install deepsignal @preact/signals-react
 ```
 
-If you are using the library with React, you should use the `deepsignal/react` import. You also need to install `@preact/signals-react`.
+If you are using the library with React (`@preact/signals-react`), you should use the `deepsignal/react` import. You also need to install `@preact/signals-react`.
 
 ```js
 import { deepSignal } from "deepsignal/react";
 
-const state = deepSignal({});
+const state = deepSignal({
+	count: 0,
+});
+
+const Count = () => <div>{state.$count}</div>;
 ```
 
 - If you want to use `deepSignal` outside of the components, please follow the [React integration guide of `@preact/signals-react`](https://github.com/preactjs/signals/blob/main/packages/react/README.md#react-integration) to choose one of the integration methods.
 - For `useDeepSignal`, no integration is required.
 
-### Without Preact/React
+### With Lit
+
+Lit now [supports Preact Signals](https://lit.dev/blog/2023-10-10-lit-3.0/#preact-signals-integration), so you can also use `deepsignal` in Lit.
+
+```sh
+npm install deepsignal @lit-labs/preact-signals
+```
+
+If you are using the library just with Lit, you should use the `deepsignal/core` import. You also need to install `@lit-labs/preact-signals` and use its `SignalWatcher` function.
+
+```js
+import { SignalWatcher } from "@lit-labs/preact-signals";
+import { deepSignal } from "deepsignal/core";
+
+const state = deepSignal({
+	count: 0,
+});
+
+class Count extends SignalWatcher(LitElement) {
+	render() {
+		return html`<div>${state.$count}</div>`;
+	}
+}
+```
+
+### Without Preact/React/Lit
 
 ```sh
 npm install deepsignal @preact/signals-core
@@ -103,9 +137,16 @@ npm install deepsignal @preact/signals-core
 If you are using the library just with `@preact/signals-core`, you should use the `deepsignal/core` import. You also need to install `@preact/signals-core`.
 
 ```js
+import { effect } from "@preact/signals-core";
 import { deepSignal } from "deepsignal/core";
 
-const state = deepSignal({});
+const state = deepSignal({
+	count: 0,
+});
+
+effect(() => {
+	console.log(`Count: ${state.count}`);
+});
 ```
 
 This is because the `deepsignal` import includes a dependency on `@preact/signals`, while the `deepsignal/core` import does not. This allows you to use deep signals with either `@preact/signals` or `@preact/signals-core`, depending on your needs. **Do not use both.**
