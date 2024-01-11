@@ -92,7 +92,7 @@ const state = deepSignal({});
 ```
 
 - If you want to use `deepSignal` outside of the components, please follow the [React integration guide of `@preact/signals-react`](https://github.com/preactjs/signals/blob/main/packages/react/README.md#react-integration) to choose one of the integration methods.
-- If rely exclusively on `useDeepSignal`, no integration is required.
+- For `useDeepSignal`, no integration is required.
 
 ### Without Preact/React
 
