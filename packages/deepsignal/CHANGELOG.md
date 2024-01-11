@@ -1,5 +1,13 @@
 # deepsignal
 
+## 1.4.0
+
+### Minor Changes
+
+- [#62](https://github.com/luisherranz/deepsignal/pull/62) [`beee51e`](https://github.com/luisherranz/deepsignal/commit/beee51e38c56ff94ccb6b3b14583a34f629a006a) Thanks [@luisherranz](https://github.com/luisherranz)! - Add support for setters.
+
+* [#59](https://github.com/luisherranz/deepsignal/pull/59) [`9b0ebbb`](https://github.com/luisherranz/deepsignal/commit/9b0ebbba3707f4170596671e97975c15e1b7650c) Thanks [@luisherranz](https://github.com/luisherranz)! - Add support for @preact/signals-react 2.0.0
+
 ## 1.3.6
 
 ### Patch Changes
