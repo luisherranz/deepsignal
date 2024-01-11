@@ -6,6 +6,7 @@ import { createElement } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { act } from "react-dom/test-utils";
 import { useDeepSignal, type DeepSignal } from "deepsignal/react";
+import "@preact/signals/auto";
 
 describe("deepsignal/react", () => {
 	let scratch: HTMLDivElement;
