@@ -1,5 +1,5 @@
 ---
-"deepsignal": major
+"deepsignal": patch
 ---
 
-Remove support for class instances and everything that is not strictly plain objects or arrays.
+Reject class instances and everything that is not strictly plain objects or arrays.
