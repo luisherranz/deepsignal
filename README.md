@@ -36,7 +36,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [`array.$[index]`](#arrayindex)
     - [`array.$length`](#arraylength)
     - [`peek(state, "prop")`](#peekstate-prop)
-    - [`shallow(obj)`](#shallow)
+    - [`shallow(obj)`](#shallowobj)
     - [`state.$prop = signal(value)`](#stateprop--signalvalue)
     - [`useDeepSignal`](#usedeepsignal)
   - [Common Patterns](#common-patterns)
