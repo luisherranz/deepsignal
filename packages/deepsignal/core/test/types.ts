@@ -1,5 +1,6 @@
 import { signal, Signal } from "@preact/signals-core";
 import { deepSignal, peek, shallow } from "../src";
+import type { Shallow } from "../src";
 
 // Arrays.
 const array = deepSignal([{ a: 1 }, { a: 2 }]);
@@ -106,3 +107,37 @@ const store4 = deepSignal<Store4>({
 store4.a.$b;
 // @ts-expect-error
 store4.c.$b;
+
+// Manual typings
+type Store5 = {
+	a: { b: number };
+	c: { b: number };
+};
+const store5 = deepSignal<Store5>({
+	a: { b: 1 },
+	c: { b: 1 },
+});
+
+store5.a.b;
+store5.a.$b;
+store5.c.b;
+store5.c.$b;
+// @ts-expect-error
+store5.d;
+
+type Store6 = {
+	[key: string]: { b: number };
+};
+
+const store6 = deepSignal<Store5>({
+	a: { b: 1 },
+	// @ts-expect-error
+	c: { b: "1" },
+});
+
+store5.a.b;
+store5.a.$b;
+store5.c.b;
+store5.c.$b;
+// @ts-expect-error
+store5.d;

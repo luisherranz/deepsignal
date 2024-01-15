@@ -560,16 +560,44 @@ DeepSignal exports two types, one to convert from a plain object/array to a `dee
 
 ### DeepSignal
 
-You can use the `DeepSignal` type if you want to declare your type instead of inferring it.
+You can use the `DeepSignal` type if you want to manually convert a type to a deep signal outside of the `deepSignal` function, but this is usually not required.
+
+One scenario where this could be useful is when doing external assignments. Imagine this case:
+
+```ts
+import { deepSignal } from "deepsignal";
+
+type State = { map: Record<string, boolean> };
+
+const state = deepSignal<State>({ map: {} });
+```
+
+If you want to assign a new object to `state.map`, TypeScript will complain because it expects a deep signal type, not a plain object one:
+
+```ts
+const newMap: State["map"] = { someKey: true };
+
+state.map = newMap; // This will fail because state.map expects a deep signal type.
+```
+
+You can use the `DeepSignal` type to convert a regular type into a deep signal one:
 
 ```ts
 import type { DeepSignal } from "deepsignal";
 
-type Store = DeepSignal<{
-	counter: boolean;
-}>;
+const newMap: DeepSignal<State["map"]> = { someKey: true };
 
-const store = deepSignal<Store>({ counter: 0 });
+state.map = newMap; // This is fine now.
+```
+
+You can also manually cast the type on the fly if you prefer:
+
+```ts
+state.map = newMap as DeepSignal<typeof newMap>;
+```
+
+```ts
+state.map = { someKey: true } as DeepSignal<State["map"]>;
 ```
 
 ### RevertDeepSignal
