@@ -189,6 +189,21 @@ describe("deepsignal/core", () => {
 			expect(store.nested.b).to.equal(3);
 		});
 
+		it("should support setting values with setters", () => {
+			const store = deepSignal({
+				counter: 1,
+				get double() {
+					return store.counter * 2;
+				},
+				set double(val) {
+					store.counter = val / 2;
+				},
+			});
+			expect(store.counter).to.equal(1);
+			store.double = 4;
+			expect(store.counter).to.equal(2);
+		});
+
 		it("should update array length", () => {
 			expect(store.array.length).to.equal(2);
 			store.array.push(4);
@@ -296,6 +311,16 @@ describe("deepsignal/core", () => {
 			expect(store.a.nested.id).to.equal(4);
 			expect(store.b.nested.id).to.equal(4);
 		});
+
+		it("should be able to reset values with Object.assign", () => {
+			const initialNested = { ...nested };
+			const initialState = { ...state, nested: initialNested };
+			store.a = 2;
+			store.nested.b = 3;
+			Object.assign(store, initialState);
+			expect(store.a).to.equal(1);
+			expect(store.nested.b).to.equal(2);
+		});
 	});
 
 	describe("delete", () => {
@@ -384,6 +409,31 @@ describe("deepsignal/core", () => {
 	});
 
 	describe("computations", () => {
+		it("should subscribe to values mutated with setters", () => {
+			const store = deepSignal({
+				counter: 1,
+				get double() {
+					return store.counter * 2;
+				},
+				set double(val) {
+					store.counter = val / 2;
+				},
+			});
+			let counter = 0;
+			let double = 0;
+
+			effect(() => {
+				counter = store.counter;
+				double = store.double;
+			});
+
+			expect(counter).to.equal(1);
+			expect(double).to.equal(2);
+			store.double = 4;
+			expect(counter).to.equal(2);
+			expect(double).to.equal(4);
+		});
+
 		it("should subscribe to changes when an item is removed from the array", () => {
 			const store = deepSignal([0, 0, 0]);
 			let sum = 0;
@@ -753,6 +803,30 @@ describe("deepsignal/core", () => {
 			expect(store.array.length).to.equal(2);
 			expect(spy1).callCount(4);
 			expect(spy2).callCount(4);
+		});
+
+		it("should be able to reset values with Object.assign and still react to changes", () => {
+			const initialNested = { ...nested };
+			const initialState = { ...state, nested: initialNested };
+			let a, b;
+
+			effect(() => {
+				a = store.a;
+			});
+			effect(() => {
+				b = store.nested.b;
+			});
+
+			store.a = 2;
+			store.nested.b = 3;
+
+			expect(a).to.equal(2);
+			expect(b).to.equal(3);
+
+			Object.assign(store, initialState);
+
+			expect(a).to.equal(1);
+			expect(b).to.equal(2);
 		});
 	});
 

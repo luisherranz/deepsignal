@@ -1,10 +1,24 @@
 # deepsignal
 
-## 1.4.0-shallow.0
+## 1.4.0
 
 ### Minor Changes
 
-- [`18a098e`](https://github.com/luisherranz/deepsignal/commit/18a098e6671061ef5830fc89f6dee364f414573d) Thanks [@luisherranz](https://github.com/luisherranz)! - Support storing shallow objects as part of the deepsignal with `shallow`.
+- [#62](https://github.com/luisherranz/deepsignal/pull/62) [`beee51e`](https://github.com/luisherranz/deepsignal/commit/beee51e38c56ff94ccb6b3b14583a34f629a006a) Thanks [@luisherranz](https://github.com/luisherranz)! - Add support for setters.
+
+* [#59](https://github.com/luisherranz/deepsignal/pull/59) [`9b0ebbb`](https://github.com/luisherranz/deepsignal/commit/9b0ebbba3707f4170596671e97975c15e1b7650c) Thanks [@luisherranz](https://github.com/luisherranz)! - Add support for @preact/signals-react 2.0.0
+
+## 1.3.6
+
+### Patch Changes
+
+- [#42](https://github.com/luisherranz/deepsignal/pull/42) [`79db35b`](https://github.com/luisherranz/deepsignal/commit/79db35bebe4002c5d4e4ad77156b9ba609e14633) Thanks [@luisherranz](https://github.com/luisherranz)! - Add `preact` as peer dependency back and mark them as optional.
+
+## 1.3.5
+
+### Patch Changes
+
+- [#40](https://github.com/luisherranz/deepsignal/pull/40) [`6284cd6`](https://github.com/luisherranz/deepsignal/commit/6284cd6db785a4ec48a6e2987fd6ea745cc36bdd) Thanks [@luisherranz](https://github.com/luisherranz)! - Use `@preact/signals` dependencies as peer dependencies.
 
 ## 1.3.4
 

@@ -14,6 +14,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
   - [Preact & TypeScript](https://stackblitz.com/edit/vitejs-vite-hktyyf?file=src%2Fmain.tsx)
   - [React](https://stackblitz.com/edit/vitejs-vite-zoh464?file=src%2Fmain.jsx)
   - [React & TypeScript](https://stackblitz.com/edit/vitejs-vite-r2stgq?file=src%2Fmain.tsx)
+  - [Lit](https://stackblitz.com/edit/lit-and-deepsignal?file=src%2Fmy-element.js)
 - Or on Codesandbox
   - [Preact](https://codesandbox.io/s/deepsignal-demo-hv1i1p)
   - [Preact & TypeScript](https://codesandbox.io/s/deepsignal-demo-typescript-os7ox0?file=/src/index.tsx)
@@ -38,15 +39,19 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [`shallow(obj)`](#shallow)
     - [`state.$prop = signal(value)`](#stateprop--signalvalue)
     - [`useDeepSignal`](#usedeepsignal)
+  - [Common Patterns](#common-patterns)
+    - [Resetting the store](#resetting-the-store)
   - [When do you need access to signals?](#when-do-you-need-access-to-signals)
     - [Passing the value of a signal directly to JSX](#passing-the-value-of-a-signal-directly-to-jsx)
     - [Passing a signal to a child component](#passing-a-signal-to-a-child-component)
   - [TypeScript](#typescript)
+    - [`DeepSignal`](#deepsignal-1)
+    - [`RevertDeepSignal`](#revertdeepsignal)
   - [License](#license)
 
 ## Features
 
-- **Transparent**: `deepsignal` wraps the objects with proxies that intercept all property accesses, but does not modify the object. This means that you can still use the object as you normally would, and it will behave exactly as expected. Mutating the object updates the value of the underlying signals.
+- **Transparent**: `deepsignal` wraps the object with a proxy that intercepts all property accesses, but does not modify how you interact with the object. This means that you can still use the object as you normally would, and it will behave exactly as you would expect, except that mutating the object also updates the value of the underlying signals.
 - **Tiny (less than 1kB)**: `deepsignal` is designed to be lightweight and has a minimal footprint, making it easy to include in your projects. It's just a small wrapper around `@preact/signals-core`.
 - **Full array support**: `deepsignal` fully supports arrays, including nested arrays.
 - **Deep**: `deepsignal` converts nested objects and arrays to deep signal objects/arrays, allowing you to create fully reactive data structures.
@@ -60,36 +65,89 @@ The most important feature is that **it just works**. You don't need to do anyth
 
 ## Installation
 
+### With Preact
+
 ```sh
-npm install deepsignal
+npm install deepsignal @preact/signals
 ```
 
-If you are using `deepsignal` with Preact (`@preact/signals`), you should use the `deepsignal` import. You don't need to install or import `@preact/signals` anywhere in your code if you don't need it.
+If you are using `deepsignal` with Preact (`@preact/signals`), you should use the `deepsignal` import. You also need to install `@preact/signals`.
 
 ```js
 import { deepSignal } from "deepsignal";
 
-const state = deepSignal({});
+const state = deepSignal({
+	count: 0,
+});
+
+const Count = () => <div>{state.$count}</div>;
 ```
 
 ### With React
 
-If you are using the library with React, you should use the `deepsignal/react` import. You don't need to install or import `@preact/signals-react` anywhere in your code if you don't need it.
+```sh
+npm install deepsignal @preact/signals-react
+```
+
+If you are using the library with React (`@preact/signals-react`), you should use the `deepsignal/react` import. You also need to install `@preact/signals-react`.
 
 ```js
 import { deepSignal } from "deepsignal/react";
 
-const state = deepSignal({});
+const state = deepSignal({
+	count: 0,
+});
+
+const Count = () => <div>{state.$count}</div>;
 ```
 
-### Without Preact/React
+- If you want to use `deepSignal` outside of the components, please follow the [React integration guide of `@preact/signals-react`](https://github.com/preactjs/signals/blob/main/packages/react/README.md#react-integration) to choose one of the integration methods.
+- For `useDeepSignal`, no integration is required.
 
-If you are using the library just with `@preact/signals-core`, you should use the `deepsignal/core` import.
+### With Lit
+
+Lit now [supports Preact Signals](https://lit.dev/blog/2023-10-10-lit-3.0/#preact-signals-integration), so you can also use `deepsignal` in Lit.
+
+```sh
+npm install deepsignal @lit-labs/preact-signals
+```
+
+If you are using the library just with Lit, you should use the `deepsignal/core` import. You also need to install `@lit-labs/preact-signals` and use its `SignalWatcher` function.
 
 ```js
+import { SignalWatcher } from "@lit-labs/preact-signals";
 import { deepSignal } from "deepsignal/core";
 
-const state = deepSignal({});
+const state = deepSignal({
+	count: 0,
+});
+
+class Count extends SignalWatcher(LitElement) {
+	render() {
+		return html`<div>${state.$count}</div>`;
+	}
+}
+```
+
+### Without Preact/React/Lit
+
+```sh
+npm install deepsignal @preact/signals-core
+```
+
+If you are using the library just with `@preact/signals-core`, you should use the `deepsignal/core` import. You also need to install `@preact/signals-core`.
+
+```js
+import { effect } from "@preact/signals-core";
+import { deepSignal } from "deepsignal/core";
+
+const state = deepSignal({
+	count: 0,
+});
+
+effect(() => {
+	console.log(`Count: ${state.count}`);
+});
 ```
 
 This is because the `deepsignal` import includes a dependency on `@preact/signals`, while the `deepsignal/core` import does not. This allows you to use deep signals with either `@preact/signals` or `@preact/signals-core`, depending on your needs. **Do not use both.**
@@ -345,7 +403,7 @@ With `shallow`, you have control over the granularity of reactivity in your stor
 
 ### `state.$prop = signal(value)`
 
-You can modify the underlying signal of an object's property doing an assignment to the `$`-prefixed name.
+You can modify the underlying signal of an object's property by doing an assignment to the `$`-prefixed name.
 
 ```js
 const state = deepSignal({ counter: 0 });
@@ -386,6 +444,28 @@ function Counter() {
 	);
 }
 ```
+
+## Common Patterns
+
+### Resetting the store
+
+If you need to reset your store to some initial values, don't overwrite the reference. Instead, replace each value using something like `Object.assign`.
+
+```js
+const initialState = { counter: 0 };
+
+const store = deepSignal({
+	...initialState,
+	inc: () => {
+		store.counter++;
+	},
+	reset: () => {
+		Object.assign(store, initialState);
+	},
+});
+```
+
+Take into account that the object that you pass to `deepSignal` during the creation is also mutated when you mutate the deep signal. Therefore, if you need to keep a set of initial values, you need to store them in a different object or clone it before assigning it to the deepsignal.
 
 ## When do you need access to signals?
 
@@ -475,11 +555,25 @@ console.log(array.$![0].value); // 1
 
 Note that here the position of the non-null assertion operator changes because `array.$` is an object in itself.
 
-### DeepSignal and RevertDeepSignal types
+DeepSignal exports two types, one to convert from a plain object/array to a `deepSignal` instance, and other to revert from a `deepSignal` instance back to the plain object/array.
 
-DeepSignal exports two types, one to convert from a raw state/store to a `deepSignal` instance, and other to revert from a `deepSignal` instance back to the raw store.
+### DeepSignal
 
-These types are handy when manual casting is needed, like when you try to use `Object.values()`:
+You can use the `DeepSignal` type if you want to declare your type instead of inferring it.
+
+```ts
+import type { DeepSignal } from "deepsignal";
+
+type Store = DeepSignal<{
+	counter: boolean;
+}>;
+
+const store = deepSignal<Store>({ counter: 0 });
+```
+
+### RevertDeepSignal
+
+You can use the `RevertDeepSignal` type if you want to recover the type of the plain object/array using the type of the `deepSignal` instance. For example, when you need to use `Object.values()`.
 
 ```ts
 import type { RevertDeepSignal } from "deepsignal";

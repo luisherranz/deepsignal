@@ -6,6 +6,7 @@ const arrayToArrayOfSignals = new WeakMap();
 const ignore = new WeakSet();
 const objToIterable = new WeakMap();
 const rg = /^\$/;
+const descriptor = Object.getOwnPropertyDescriptor;
 let peeking = false;
 
 export const deepSignal = <T extends object>(obj: T): DeepSignal<T> => {
@@ -64,7 +65,7 @@ const get =
 		const key = returnSignal ? fullKey.replace(rg, "") : fullKey;
 		if (
 			!signals.has(key) &&
-			typeof Object.getOwnPropertyDescriptor(target, key)?.get === "function"
+			typeof descriptor(target, key)?.get === "function"
 		) {
 			signals.set(
 				key,
@@ -89,6 +90,8 @@ const get =
 const objectHandlers = {
 	get: get(false),
 	set(target: object, fullKey: string, val: any, receiver: object): boolean {
+		if (typeof descriptor(target, fullKey)?.set === "function")
+			return Reflect.set(target, fullKey, val, receiver);
 		if (!proxyToSignals.has(receiver)) proxyToSignals.set(receiver, new Map());
 		const signals = proxyToSignals.get(receiver);
 		if (fullKey[0] === "$") {
