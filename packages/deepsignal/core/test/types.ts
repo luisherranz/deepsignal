@@ -1,5 +1,5 @@
 import { signal, Signal } from "@preact/signals-core";
-import { deepSignal, peek } from "../src";
+import { deepSignal, peek, shallow } from "../src";
 
 // Arrays.
 const array = deepSignal([{ a: 1 }, { a: 2 }]);
@@ -74,3 +74,18 @@ store2.a = a;
 store2.$a = a;
 const s5: number = store2.a!;
 const s6: Signal<number | undefined> = store2.$a;
+
+// Shallow
+const store3 = deepSignal({
+	a: { b: 1 },
+	c: shallow({ b: 2 }),
+});
+
+store3.a.$b;
+// @ts-expect-error
+store3.c.$b;
+
+store3.a = { b: 1 };
+// @ts-expect-error
+store3.c = { b: 2 };
+store3.c = shallow({ b: 2 });

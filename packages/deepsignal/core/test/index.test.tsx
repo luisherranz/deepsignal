@@ -985,28 +985,13 @@ describe("deepsignal/core", () => {
 			expect(store.deepObj).to.not.equal(deepObj);
 		});
 
-		it("should not proxy shallow objects if shallow is called before access", () => {
-			const shallowObj1 = { a: 1 };
-			const shallowObj2 = { b: 2 };
-			const deepObj = { c: 3 };
-			const store = deepSignal({ shallowObj1, shallowObj2, deepObj });
-			shallow(shallowObj1);
-			shallow(store, "shallowObj2");
-			expect(store.shallowObj1.a).to.equal(1);
-			expect(store.shallowObj2.b).to.equal(2);
-			expect(store.deepObj.c).to.equal(3);
-			expect(store.shallowObj1).to.equal(shallowObj1);
-			expect(store.shallowObj2).to.equal(shallowObj2);
-			expect(store.deepObj).to.not.equal(deepObj);
-		});
-
-		it("should not proxy shallow objects if shallow is called before access using the deepsignal", () => {
+		it("should not proxy shallow objects if shallow is called on the reference before accessing the property", () => {
 			const shallowObj = { a: 1 };
-			const deepObj = { b: 2 };
+			const deepObj = { c: 3 };
 			const store = deepSignal({ shallowObj, deepObj });
-			shallow(store, "shallowObj");
+			shallow(shallowObj);
 			expect(store.shallowObj.a).to.equal(1);
-			expect(store.deepObj.b).to.equal(2);
+			expect(store.deepObj.c).to.equal(3);
 			expect(store.shallowObj).to.equal(shallowObj);
 			expect(store.deepObj).to.not.equal(deepObj);
 		});
@@ -1020,7 +1005,7 @@ describe("deepsignal/core", () => {
 				x = store.shallowObj.a;
 			});
 			expect(x).to.equal(1);
-			store.shallowObj = { a: 2 };
+			store.shallowObj = shallow({ a: 2 });
 			expect(x).to.equal(2);
 		});
 

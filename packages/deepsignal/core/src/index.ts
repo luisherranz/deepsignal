@@ -30,17 +30,10 @@ export const peek = <
 	return value as RevertDeepSignal<RevertDeepSignalObject<T>[K]>;
 };
 
-export function shallow<T extends object>(obj: T): T;
-
-export function shallow<
-	T extends DeepSignalObject<object>,
-	K extends keyof RevertDeepSignalObject<T>
->(obj: T, key: K): RevertDeepSignal<RevertDeepSignalObject<T>[K]>;
-
-export function shallow(obj: any, key?: any): any {
-	const o = key ? peek(obj, key) : obj;
-	ignore.add(o);
-	return o;
+const isShallow = Symbol("shallow");
+export function shallow<T extends object>(obj: T): T & { [isShallow]: true } {
+	ignore.add(obj);
+	return obj as T & { [isShallow]: true };
 }
 
 const createProxy = (target: object, handlers: ProxyHandler<object>) => {
@@ -159,6 +152,8 @@ const shouldProxy = (val: any): boolean => {
 /** TYPES **/
 
 export type DeepSignal<T> = T extends Function
+	? T
+	: T extends { [isShallow]: true }
 	? T
 	: T extends Array<unknown>
 	? DeepSignalArray<T>
