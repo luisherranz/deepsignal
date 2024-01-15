@@ -47,6 +47,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
   - [TypeScript](#typescript)
     - [`DeepSignal`](#deepsignal-1)
     - [`RevertDeepSignal`](#revertdeepsignal)
+    - [`Shallow`](#shallow)
   - [License](#license)
 
 ## Features
@@ -579,6 +580,24 @@ You can use the `RevertDeepSignal` type if you want to recover the type of the p
 import type { RevertDeepSignal } from "deepsignal";
 
 const values = Object.values(store as RevertDeepSignal<typeof store>);
+```
+
+### Shallow
+
+You can use the `Shallow` type if you want to type a store that contains a shallow object.
+
+```ts
+import type { Shallow } from "deepsignal";
+
+type Store = {
+	obj: { a: number };
+	shallowObj: { b: number };
+};
+
+const store = deepSignal<Store>({
+	obj: { a: 1 },
+	shallowObj: shallow({ b: 2 }),
+});
 ```
 
 ## License

@@ -32,9 +32,9 @@ export const peek = <
 };
 
 const isShallow = Symbol("shallow");
-export function shallow<T extends object>(obj: T): T & { [isShallow]: true } {
+export function shallow<T extends object>(obj: T): Shallow<T> {
 	ignore.add(obj);
-	return obj as T & { [isShallow]: true };
+	return obj as Shallow<T>;
 }
 
 const createProxy = (target: object, handlers: ProxyHandler<object>) => {
@@ -276,6 +276,8 @@ type DeepSignalArray<T> = DeepArray<ArrayType<T>> & {
 	$?: { [key: number]: Signal<ArrayType<T>> };
 	$length?: Signal<number>;
 };
+
+export type Shallow<T extends object> = T & { [isShallow]: true };
 
 export declare const useDeepSignal: <T extends object>(obj: T) => DeepSignal<T>;
 

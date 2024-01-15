@@ -89,3 +89,20 @@ store3.a = { b: 1 };
 // @ts-expect-error
 store3.c = { b: 2 };
 store3.c = shallow({ b: 2 });
+
+type Store4 = {
+	a: { b: number };
+	c: Shallow<{ b: number }>;
+	d: Shallow<{ b: number }>;
+};
+
+const store4 = deepSignal<Store4>({
+	a: { b: 1 },
+	c: shallow({ b: 2 }),
+	// @ts-expect-error
+	d: { b: 3 },
+});
+
+store4.a.$b;
+// @ts-expect-error
+store4.c.$b;
