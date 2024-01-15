@@ -35,6 +35,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [`array.$[index]`](#arrayindex)
     - [`array.$length`](#arraylength)
     - [`peek(state, "prop")`](#peekstate-prop)
+    - [`shallow(obj)`](#shallow)
     - [`state.$prop = signal(value)`](#stateprop--signalvalue)
     - [`useDeepSignal`](#usedeepsignal)
   - [When do you need access to signals?](#when-do-you-need-access-to-signals)
@@ -293,6 +294,54 @@ effect(() => {
 Note that you should only use `peek()` if you really need it. Reading a signal's value via `state.prop` is the preferred way in most scenarios.
 
 _For primitive values, you can get away with using `store.$prop.peek()` instead of `peek(state, "prop")`. But in `deepsignal`, the underlying signals store the proxies, not the object. That means it's not safe to use `state.$prop.peek().nestedProp` if `prop` is an object. You should use `peek(state, "prop").nestedProp` instead._
+
+### `shallow(obj)`
+
+When using `deepsignal`, all nested objects and arrays are turned into deep signal objects/arrays. The `shallow` function is a utility that allows you to declare an object as shallow within the context of `deepsignal`. Shallow objects do not proxy their properties, meaning changes to their properties are not observed for reactivity. This can be useful for objects that you don't want to be reactive or when you have an object that should not trigger UI updates when changed.
+
+```js
+import { deepSignal, shallow } from "deepsignal";
+
+const shallowObj = { key: "value" };
+const store = deepSignal({
+	someData: shallow(shallowObj),
+});
+
+// Accessing `store.someData` gives you the original object.
+console.log(store.someData === shallowObj); // true
+
+// Mutating `store.someData` does NOT trigger reactivity.
+store.someData.key = "newValue";
+// No reactive update is triggered since `someData` is shallow.
+```
+
+In practice, this means you can have parts of your state that are mutable and changeable without causing rerenders or effects to run. This becomes particularly useful for large datasets or configuration objects that you might want to include in your global state but do not need to be reactive.
+
+#### Observing reference changes
+
+Although properties of a shallow object are not reactive, the reference to the shallow object itself is observed. If you replace the reference of a shallow object with another reference, it will trigger reactive updates:
+
+```js
+import { deepSignal, shallow } from "deepsignal";
+
+const store = deepSignal({
+	someData: shallow({ key: "value" }),
+});
+
+effect(() => {
+	console.log(store.someData.key);
+});
+
+// Changing the properties of `someData` does not  trigger the `effect`.
+store.someData.key = "changed";
+// No log output.
+
+// But replacing `someData` with a new object triggers the `effect` because store.someData is still tracked.
+store.someData = shallow({ key: "new value" });
+// It will log 'new value'.
+```
+
+With `shallow`, you have control over the granularity of reactivity in your store, mixing both reactive deep structures with non-reactive shallow portions as needed.
 
 ### `state.$prop = signal(value)`
 
