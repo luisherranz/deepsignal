@@ -996,7 +996,7 @@ describe("deepsignal/core", () => {
 			expect(store.deepObj).to.not.equal(deepObj);
 		});
 
-		it("should observe changes in the shallow object", () => {
+		it("should observe changes in the shallow object if the reference changes", () => {
 			const obj = { a: 1 };
 			const shallowObj = shallow(obj);
 			const store = deepSignal({ shallowObj });
@@ -1007,6 +1007,21 @@ describe("deepsignal/core", () => {
 			expect(x).to.equal(1);
 			store.shallowObj = shallow({ a: 2 });
 			expect(x).to.equal(2);
+		});
+
+		it("should stop observing changes in the shallow object if the reference changes and it's not shallow anymore", () => {
+			const obj = { a: 1 };
+			const shallowObj = shallow(obj);
+			const store = deepSignal<{ obj: typeof obj }>({ obj: shallowObj });
+			let x;
+			effect(() => {
+				x = store.obj.a;
+			});
+			expect(x).to.equal(1);
+			store.obj = { a: 2 };
+			expect(x).to.equal(2);
+			store.obj.a = 3;
+			expect(x).to.equal(3);
 		});
 
 		it("should not observe changes in the props of the shallow object", () => {
