@@ -36,6 +36,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
     - [`array.$[index]`](#arrayindex)
     - [`array.$length`](#arraylength)
     - [`peek(state, "prop")`](#peekstate-prop)
+    - [`shallow(obj)`](#shallowobj)
     - [`state.$prop = signal(value)`](#stateprop--signalvalue)
     - [`useDeepSignal`](#usedeepsignal)
   - [Common Patterns](#common-patterns)
@@ -46,6 +47,7 @@ Use [Preact signals](https://github.com/preactjs/signals) with the interface of 
   - [TypeScript](#typescript)
     - [`DeepSignal`](#deepsignal-1)
     - [`RevertDeepSignal`](#revertdeepsignal)
+    - [`Shallow`](#shallow)
   - [License](#license)
 
 ## Features
@@ -352,6 +354,54 @@ Note that you should only use `peek()` if you really need it. Reading a signal's
 
 _For primitive values, you can get away with using `store.$prop.peek()` instead of `peek(state, "prop")`. But in `deepsignal`, the underlying signals store the proxies, not the object. That means it's not safe to use `state.$prop.peek().nestedProp` if `prop` is an object. You should use `peek(state, "prop").nestedProp` instead._
 
+### `shallow(obj)`
+
+When using `deepsignal`, all nested objects and arrays are turned into deep signal objects/arrays. The `shallow` function is a utility that allows you to declare an object as shallow within the context of `deepsignal`. Shallow objects do not proxy their properties, meaning changes to their properties are not observed for reactivity. This can be useful for objects that you don't want to be reactive or when you have an object that should not trigger UI updates when changed.
+
+```js
+import { deepSignal, shallow } from "deepsignal";
+
+const shallowObj = { key: "value" };
+const store = deepSignal({
+	someData: shallow(shallowObj),
+});
+
+// Accessing `store.someData` gives you the original object.
+console.log(store.someData === shallowObj); // true
+
+// Mutating `store.someData` does NOT trigger reactivity.
+store.someData.key = "newValue";
+// No reactive update is triggered since `someData` is shallow.
+```
+
+In practice, this means you can have parts of your state that are mutable and changeable without causing rerenders or effects to run. This becomes particularly useful for large datasets or configuration objects that you might want to include in your global state but do not need to be reactive.
+
+#### Observing reference changes
+
+Although properties of a shallow object are not reactive, the reference to the shallow object itself is observed. If you replace the reference of a shallow object with another reference, it will trigger reactive updates:
+
+```js
+import { deepSignal, shallow } from "deepsignal";
+
+const store = deepSignal({
+	someData: shallow({ key: "value" }),
+});
+
+effect(() => {
+	console.log(store.someData.key);
+});
+
+// Changing the properties of `someData` does not  trigger the `effect`.
+store.someData.key = "changed";
+// No log output.
+
+// But replacing `someData` with a new object triggers the `effect` because store.someData is still tracked.
+store.someData = shallow({ key: "new value" });
+// It will log 'new value'.
+```
+
+With `shallow`, you have control over the granularity of reactivity in your store, mixing both reactive deep structures with non-reactive shallow portions as needed.
+
 ### `state.$prop = signal(value)`
 
 You can modify the underlying signal of an object's property by doing an assignment to the `$`-prefixed name.
@@ -510,16 +560,44 @@ DeepSignal exports two types, one to convert from a plain object/array to a `dee
 
 ### DeepSignal
 
-You can use the `DeepSignal` type if you want to declare your type instead of inferring it.
+You can use the `DeepSignal` type if you want to manually convert a type to a deep signal outside of the `deepSignal` function, but this is usually not required.
+
+One scenario where this could be useful is when doing external assignments. Imagine this case:
+
+```ts
+import { deepSignal } from "deepsignal";
+
+type State = { map: Record<string, boolean> };
+
+const state = deepSignal<State>({ map: {} });
+```
+
+If you want to assign a new object to `state.map`, TypeScript will complain because it expects a deep signal type, not a plain object one:
+
+```ts
+const newMap: State["map"] = { someKey: true };
+
+state.map = newMap; // This will fail because state.map expects a deep signal type.
+```
+
+You can use the `DeepSignal` type to convert a regular type into a deep signal one:
 
 ```ts
 import type { DeepSignal } from "deepsignal";
 
-type Store = DeepSignal<{
-	counter: boolean;
-}>;
+const newMap: DeepSignal<State["map"]> = { someKey: true };
 
-const store = deepSignal<Store>({ counter: 0 });
+state.map = newMap; // This is fine now.
+```
+
+You can also manually cast the type on the fly if you prefer:
+
+```ts
+state.map = newMap as DeepSignal<typeof newMap>;
+```
+
+```ts
+state.map = { someKey: true } as DeepSignal<State["map"]>;
 ```
 
 ### RevertDeepSignal
@@ -530,6 +608,24 @@ You can use the `RevertDeepSignal` type if you want to recover the type of the p
 import type { RevertDeepSignal } from "deepsignal";
 
 const values = Object.values(store as RevertDeepSignal<typeof store>);
+```
+
+### Shallow
+
+You can use the `Shallow` type if you want to type a store that contains a shallow object.
+
+```ts
+import type { Shallow } from "deepsignal";
+
+type Store = {
+	obj: { a: number };
+	shallowObj: { b: number };
+};
+
+const store = deepSignal<Store>({
+	obj: { a: 1 },
+	shallowObj: shallow({ b: 2 }),
+});
 ```
 
 ## License

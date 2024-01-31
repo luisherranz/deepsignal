@@ -3,7 +3,7 @@ import { computed, signal, Signal } from "@preact/signals-core";
 const proxyToSignals = new WeakMap();
 const objToProxy = new WeakMap();
 const arrayToArrayOfSignals = new WeakMap();
-const proxies = new WeakSet();
+const ignore = new WeakSet();
 const objToIterable = new WeakMap();
 const rg = /^\$/;
 const descriptor = Object.getOwnPropertyDescriptor;
@@ -31,9 +31,15 @@ export const peek = <
 	return value as RevertDeepSignal<RevertDeepSignalObject<T>[K]>;
 };
 
+const isShallow = Symbol("shallow");
+export function shallow<T extends object>(obj: T): Shallow<T> {
+	ignore.add(obj);
+	return obj as Shallow<T>;
+}
+
 const createProxy = (target: object, handlers: ProxyHandler<object>) => {
 	const proxy = new Proxy(target, handlers);
-	proxies.add(proxy);
+	ignore.add(proxy);
 	return proxy;
 };
 
@@ -143,12 +149,14 @@ const shouldProxy = (val: any): boolean => {
 		typeof val.constructor === "function" &&
 		val.constructor.name in globalThis &&
 		(globalThis as any)[val.constructor.name] === val.constructor;
-	return (!isBuiltIn || supported.has(val.constructor)) && !proxies.has(val);
+	return (!isBuiltIn || supported.has(val.constructor)) && !ignore.has(val);
 };
 
 /** TYPES **/
 
 export type DeepSignal<T> = T extends Function
+	? T
+	: T extends { [isShallow]: true }
 	? T
 	: T extends Array<unknown>
 	? DeepSignalArray<T>
@@ -268,6 +276,8 @@ type DeepSignalArray<T> = DeepArray<ArrayType<T>> & {
 	$?: { [key: number]: Signal<ArrayType<T>> };
 	$length?: Signal<number>;
 };
+
+export type Shallow<T extends object> = T & { [isShallow]: true };
 
 export declare const useDeepSignal: <T extends object>(obj: T) => DeepSignal<T>;
 

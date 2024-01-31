@@ -1,5 +1,6 @@
 import { signal, Signal } from "@preact/signals-core";
-import { deepSignal, peek } from "../src";
+import { deepSignal, peek, shallow } from "../src";
+import type { Shallow } from "../src";
 
 // Arrays.
 const array = deepSignal([{ a: 1 }, { a: 2 }]);
@@ -74,3 +75,69 @@ store2.a = a;
 store2.$a = a;
 const s5: number = store2.a!;
 const s6: Signal<number | undefined> = store2.$a;
+
+// Shallow
+const store3 = deepSignal({
+	a: { b: 1 },
+	c: shallow({ b: 2 }),
+});
+
+store3.a.$b;
+// @ts-expect-error
+store3.c.$b;
+
+store3.a = { b: 1 };
+// @ts-expect-error
+store3.c = { b: 2 };
+store3.c = shallow({ b: 2 });
+
+type Store4 = {
+	a: { b: number };
+	c: Shallow<{ b: number }>;
+	d: Shallow<{ b: number }>;
+};
+
+const store4 = deepSignal<Store4>({
+	a: { b: 1 },
+	c: shallow({ b: 2 }),
+	// @ts-expect-error
+	d: { b: 3 },
+});
+
+store4.a.$b;
+// @ts-expect-error
+store4.c.$b;
+
+// Manual typings
+type Store5 = {
+	a: { b: number };
+	c: { b: number };
+};
+const store5 = deepSignal<Store5>({
+	a: { b: 1 },
+	c: { b: 1 },
+});
+
+store5.a.b;
+store5.a.$b;
+store5.c.b;
+store5.c.$b;
+// @ts-expect-error
+store5.d;
+store5.c = { b: 2 };
+
+type Store6 = {
+	[key: string]: { b: number };
+};
+
+const store6 = deepSignal<Store6>({
+	a: { b: 1 },
+	c: { b: 1 },
+});
+
+store6.a.b;
+store6.a.$b;
+store6.c.b;
+store6.c.$b;
+store6.d = { b: 2 };
+store6.d.$b;

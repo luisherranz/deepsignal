@@ -1,0 +1,10 @@
+{
+  "mode": "exit",
+  "tag": "shallow",
+  "initialVersions": {
+    "deepsignal": "1.3.4"
+  },
+  "changesets": [
+    "nice-spoons-kick"
+  ]
+}
