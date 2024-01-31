@@ -124,20 +124,20 @@ store5.c.b;
 store5.c.$b;
 // @ts-expect-error
 store5.d;
+store5.c = { b: 2 };
 
 type Store6 = {
 	[key: string]: { b: number };
 };
 
-const store6 = deepSignal<Store5>({
+const store6 = deepSignal<Store6>({
 	a: { b: 1 },
-	// @ts-expect-error
-	c: { b: "1" },
+	c: { b: 1 },
 });
 
-store5.a.b;
-store5.a.$b;
-store5.c.b;
-store5.c.$b;
-// @ts-expect-error
-store5.d;
+store6.a.b;
+store6.a.$b;
+store6.c.b;
+store6.c.$b;
+store6.d = { b: 2 };
+store6.d.$b;
