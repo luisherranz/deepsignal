@@ -1,5 +1,15 @@
 # deepsignal
 
+## 1.5.0
+
+### Minor Changes
+
+- [#38](https://github.com/luisherranz/deepsignal/pull/38) [`18a098e`](https://github.com/luisherranz/deepsignal/commit/18a098e6671061ef5830fc89f6dee364f414573d) Thanks [@luisherranz](https://github.com/luisherranz)! - Support storing shallow objects as part of the deepsignal with `shallow`.
+
+### Patch Changes
+
+- [#46](https://github.com/luisherranz/deepsignal/pull/46) [`eb498f5`](https://github.com/luisherranz/deepsignal/commit/eb498f5be0dc1343a10dfe98b4558706702f2caa) Thanks [@luisherranz](https://github.com/luisherranz)! - Reject class instances and everything that is not strictly plain objects or arrays.
+
 ## 1.4.0
 
 ### Minor Changes
