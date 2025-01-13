@@ -8,10 +8,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2.2.2
+      - name: Install Node.js
+        uses: actions/setup-node@v3
         with:
-          version: 8
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.3
           run_install: false
 
       - name: compressed-size-action

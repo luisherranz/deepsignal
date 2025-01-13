@@ -85,5 +85,6 @@
 			"microbundle@0.15.1": "patches/microbundle@0.15.1.patch",
 			"@babel/plugin-transform-typescript@7.19.1": "patches/@babel__plugin-transform-typescript@7.19.1.patch"
 		}
-	}
+	},
+	"packageManager": "pnpm@9.15.3"
 }
