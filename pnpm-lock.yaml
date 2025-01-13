@@ -54,7 +54,7 @@ importers:
         version: 3.2.8
       '@typescript-eslint/eslint-plugin':
         specifier: ^5.33.0
-        version: 5.33.0(@typescript-eslint/parser@5.33.0)(eslint@8.21.0)(typescript@4.7.4)
+        version: 5.33.0(@typescript-eslint/parser@5.33.0(eslint@8.21.0)(typescript@4.7.4))(eslint@8.21.0)(typescript@4.7.4)
       '@typescript-eslint/parser':
         specifier: ^5.33.0
         version: 5.33.0(eslint@8.21.0)(typescript@4.7.4)
@@ -90,7 +90,7 @@ importers:
         version: 6.3.16
       karma-chai-sinon:
         specifier: ^0.1.5
-        version: 0.1.5(chai@4.3.6)(karma@6.3.16)(sinon-chai@3.7.0)(sinon@14.0.0)
+        version: 0.1.5(chai@4.3.6)(karma@6.3.16)(sinon-chai@3.7.0(chai@4.3.6)(sinon@14.0.0))(sinon@14.0.0)
       karma-chrome-launcher:
         specifier: ^3.1.1
         version: 3.1.1
@@ -114,7 +114,7 @@ importers:
         version: 1.5.1
       lint-staged:
         specifier: ^13.0.3
-        version: 13.0.3
+        version: 13.0.3(enquirer@2.3.6)
       microbundle:
         specifier: ^0.15.1
         version: 0.15.1(patch_hash=yvstdq4ikeml4yz3a6bi3bgrvu)
@@ -140,14 +140,14 @@ importers:
   packages/deepsignal:
     devDependencies:
       '@preact/signals':
-        specifier: ^1.1.4
-        version: 1.1.4(preact@10.9.0)
+        specifier: ^2.0.1
+        version: 2.0.1(preact@10.9.0)
       '@preact/signals-core':
-        specifier: ^1.5.1
-        version: 1.5.1
+        specifier: ^1.8.0
+        version: 1.8.0
       '@preact/signals-react':
-        specifier: ^2.0.0
-        version: 2.0.0(react@18.2.0)
+        specifier: ^3.0.1
+        version: 3.0.1(react@18.2.0)
       '@types/react':
         specifier: ^18.0.18
         version: 18.0.27
@@ -953,16 +953,16 @@ packages:
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
 
-  '@preact/signals-core@1.5.1':
-    resolution: {integrity: sha512-dE6f+WCX5ZUDwXzUIWNMhhglmuLpqJhuy3X3xHrhZYI0Hm2LyQwOu0l9mdPiWrVNsE+Q7txOnJPgtIqHCYoBVA==}
+  '@preact/signals-core@1.8.0':
+    resolution: {integrity: sha512-OBvUsRZqNmjzCZXWLxkZfhcgT+Fk8DDcT/8vD6a1xhDemodyy87UJRJfASMuSD8FaAIeGgGm85ydXhm7lr4fyA==}
 
-  '@preact/signals-react@2.0.0':
-    resolution: {integrity: sha512-tMVi2SXFXlojaiPNWa8dlYaidR/XvEgMSp+iymKJgMssBM/QVtUQrodKZek1BJju+dkVHiyeuQHmkuLOI9oyNw==}
+  '@preact/signals-react@3.0.1':
+    resolution: {integrity: sha512-HkM5Q2IsETO1M0bUzy4JB0EPQCf99SMbWP9K6GYlYVHfOX1HLKJ6Dl9L1/1rQnmrQpUsTw0R+IJQDh6tYWar2g==}
     peerDependencies:
-      react: ^16.14.0 || 17.x || 18.x
+      react: ^16.14.0 || 17.x || 18.x || 19.x
 
-  '@preact/signals@1.1.4':
-    resolution: {integrity: sha512-4s0U8yHfy6OzBjTx8lgG0JZGFq1y+ye7xLmaaI8SXyJ5p+jAtMKW40Mg3GDLISM5WyKnqbfrQ4SOmbq1VTBtTw==}
+  '@preact/signals@2.0.1':
+    resolution: {integrity: sha512-f9p/utMgttPb9bJ+UgRBkTDZ9uQiZfX1/gV3pXGWz+yGNQj8MrnG55Xo8MAG4IHcb5UXQO6tvt9ZlsM4A2j+Rw==}
     peerDependencies:
       preact: 10.x
 
@@ -5043,17 +5043,17 @@ snapshots:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
 
-  '@preact/signals-core@1.5.1': {}
+  '@preact/signals-core@1.8.0': {}
 
-  '@preact/signals-react@2.0.0(react@18.2.0)':
+  '@preact/signals-react@3.0.1(react@18.2.0)':
     dependencies:
-      '@preact/signals-core': 1.5.1
+      '@preact/signals-core': 1.8.0
       react: 18.2.0
       use-sync-external-store: 1.2.0(react@18.2.0)
 
-  '@preact/signals@1.1.4(preact@10.9.0)':
+  '@preact/signals@2.0.1(preact@10.9.0)':
     dependencies:
-      '@preact/signals-core': 1.5.1
+      '@preact/signals-core': 1.8.0
       preact: 10.9.0
 
   '@rollup/plugin-alias@3.1.9(rollup@2.77.2)':
@@ -5192,7 +5192,7 @@ snapshots:
 
   '@types/sinonjs__fake-timers@8.1.2': {}
 
-  '@typescript-eslint/eslint-plugin@5.33.0(@typescript-eslint/parser@5.33.0)(eslint@8.21.0)(typescript@4.7.4)':
+  '@typescript-eslint/eslint-plugin@5.33.0(@typescript-eslint/parser@5.33.0(eslint@8.21.0)(typescript@4.7.4))(eslint@8.21.0)(typescript@4.7.4)':
     dependencies:
       '@typescript-eslint/parser': 5.33.0(eslint@8.21.0)(typescript@4.7.4)
       '@typescript-eslint/scope-manager': 5.33.0
@@ -5205,6 +5205,7 @@ snapshots:
       regexpp: 3.2.0
       semver: 7.3.7
       tsutils: 3.21.0(typescript@4.7.4)
+    optionalDependencies:
       typescript: 4.7.4
     transitivePeerDependencies:
       - supports-color
@@ -5216,6 +5217,7 @@ snapshots:
       '@typescript-eslint/typescript-estree': 5.33.0(typescript@4.7.4)
       debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.21.0
+    optionalDependencies:
       typescript: 4.7.4
     transitivePeerDependencies:
       - supports-color
@@ -5231,6 +5233,7 @@ snapshots:
       debug: 4.3.4(supports-color@8.1.1)
       eslint: 8.21.0
       tsutils: 3.21.0(typescript@4.7.4)
+    optionalDependencies:
       typescript: 4.7.4
     transitivePeerDependencies:
       - supports-color
@@ -5246,6 +5249,7 @@ snapshots:
       is-glob: 4.0.3
       semver: 7.3.7
       tsutils: 3.21.0(typescript@4.7.4)
+    optionalDependencies:
       typescript: 4.7.4
     transitivePeerDependencies:
       - supports-color
@@ -5765,6 +5769,7 @@ snapshots:
   debug@4.3.4(supports-color@8.1.1):
     dependencies:
       ms: 2.1.2
+    optionalDependencies:
       supports-color: 8.1.1
 
   decamelize-keys@1.1.0:
@@ -6618,7 +6623,7 @@ snapshots:
 
   just-extend@4.2.1: {}
 
-  karma-chai-sinon@0.1.5(chai@4.3.6)(karma@6.3.16)(sinon-chai@3.7.0)(sinon@14.0.0):
+  karma-chai-sinon@0.1.5(chai@4.3.6)(karma@6.3.16)(sinon-chai@3.7.0(chai@4.3.6)(sinon@14.0.0))(sinon@14.0.0):
     dependencies:
       chai: 4.3.6
       karma: 6.3.16
@@ -6709,7 +6714,7 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
-  lint-staged@13.0.3:
+  lint-staged@13.0.3(enquirer@2.3.6):
     dependencies:
       cli-truncate: 3.1.0
       colorette: 2.0.19
@@ -6717,7 +6722,7 @@ snapshots:
       debug: 4.3.4(supports-color@8.1.1)
       execa: 6.1.0
       lilconfig: 2.0.5
-      listr2: 4.0.5
+      listr2: 4.0.5(enquirer@2.3.6)
       micromatch: 4.0.5
       normalize-path: 3.0.0
       object-inspect: 1.12.2
@@ -6728,7 +6733,7 @@ snapshots:
       - enquirer
       - supports-color
 
-  listr2@4.0.5:
+  listr2@4.0.5(enquirer@2.3.6):
     dependencies:
       cli-truncate: 2.1.0
       colorette: 2.0.19
@@ -6738,6 +6743,8 @@ snapshots:
       rxjs: 7.5.6
       through: 2.3.8
       wrap-ansi: 7.0.0
+    optionalDependencies:
+      enquirer: 2.3.6
 
   load-yaml-file@0.2.0:
     dependencies:
@@ -7203,8 +7210,9 @@ snapshots:
   postcss-load-config@3.1.4(postcss@8.4.16):
     dependencies:
       lilconfig: 2.0.5
-      postcss: 8.4.16
       yaml: 1.10.2
+    optionalDependencies:
+      postcss: 8.4.16
 
   postcss-merge-longhand@5.1.6(postcss@8.4.16):
     dependencies:
