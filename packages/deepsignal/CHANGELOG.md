@@ -1,5 +1,11 @@
 # deepsignal
 
+## 1.6.0
+
+### Minor Changes
+
+- [#71](https://github.com/luisherranz/deepsignal/pull/71) [`65c56d4`](https://github.com/luisherranz/deepsignal/commit/65c56d43e37ddec3dff9525d0567217de47c2b25) Thanks [@luisherranz](https://github.com/luisherranz)! - Update deps for preact signals v2 and react-signals v3.
+
 ## 1.5.0
 
 ### Minor Changes
