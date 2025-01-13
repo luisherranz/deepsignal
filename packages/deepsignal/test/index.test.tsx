@@ -1,6 +1,6 @@
 // @ts-ignore: createElement needs to be on the scope
 import { createElement, createRef, render } from "preact";
-import { setupRerender } from "preact/test-utils";
+import { setupRerender, act } from "preact/test-utils";
 import { deepSignal, useDeepSignal, type DeepSignal } from "deepsignal";
 
 describe("deepsignal (preact)", () => {
@@ -26,7 +26,9 @@ describe("deepsignal (preact)", () => {
 			const text = scratch.firstChild!.firstChild!;
 			expect(text).to.have.property("data", "test");
 
-			state.test = "changed";
+			act(() => {
+				state.test = "changed";
+			})
 
 			// should not remount/replace Text
 			expect(scratch.firstChild!.firstChild!).to.equal(text);
@@ -47,7 +49,9 @@ describe("deepsignal (preact)", () => {
 			const text = scratch.firstChild!.firstChild!;
 			expect(text).to.have.property("data", "test");
 
-			state.test = "changed";
+			act(() => {
+				state.test = "changed";
+			});
 
 			// Should not remount/replace Text.
 			expect(scratch.firstChild!.firstChild!).to.equal(text);
@@ -69,14 +73,19 @@ describe("deepsignal (preact)", () => {
 
 			expect(scratch.firstChild).to.have.property("value", "initial");
 
-			state.test = "updated";
+			act(() => {
+				state.test = "updated";
+			});
 
 			expect(scratch.firstChild).to.have.property("value", "updated");
 
 			// Ensure the component was never re-rendered: (even after a tick).
 			expect(spy).not.to.have.been.called;
 
-			state.test = "second update";
+			act(() => {
+				state.test = "second update";
+			});
+
 
 			expect(scratch.firstChild).to.have.property("value", "second update");
 
